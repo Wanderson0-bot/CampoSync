@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Gestão de Compras</title>
+</head>
+
+<body class="pagina-compras-sem-responsivo">
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+    <header class="menu-lateral">
+        <div class="conteiner">
+            <div class="area-logo">
+                <img src="imagens/patativa.png" alt="logo CampoSync" class="logo">
+                <h1>CampoSync</h1>
+            </div>
+            <nav class="barra-nav">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="areas_produtivas.html">Áreas Produtivas</a></li>
+                    <li><a href="gestao_vendas.html">Gestão de Vendas</a></li>
+                    <li><a class="ativo" href="gestao_compras.html">Gestão de Compras</a></li>
+                    <li><a href="suprimentos.html">Suprimentos</a></li>
+                    <li><a href="consumos.html">Consumos</a></li>
+                    <li><a href="ferramentas.html">Ferramentas</a></li>
+                    <li><a href="historico.html">Histórico</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a class="acessibilidade" href="acessibilidade.html">Acessibilidade</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="conteudo-principal" tabindex="-1">
+        <section class="corpo-left">
+            <div class="menu-topo">
+                <h2>Gestão de Compras</h2>
+                <div class="acoes-topo">
+                    <ul class="lista-topo">
+                        <li><button class="btn-cynx" id="btnAbrirCynx" type="button" aria-label="Abrir assistente Cynx">
+                                <div class="robo" aria-hidden="true">
+                                    <div class="chapeu">
+                                        <div class="aba"></div>
+                                        <div class="topo"></div>
+                                    </div>
+                                    <div class="cabeca">
+                                        <div class="visor">
+                                            <div class="olhos">
+                                                <div class="olho"></div>
+                                                <div class="olho"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button></li>
+                        <li class="grupo-notif">
+                            <button class="btn-sino" id="btnSino" aria-label="Notificações" aria-expanded="false"></button>
+                            <span class="badge" id="badge" hidden>0</span>
+
+                            <div class="painel-alertas" id="painelAlertas" role="region" aria-label="Alertas recentes">
+                                <div class="cabecalho-painel">
+                                    <span>Alertas recentes</span>
+                                    <button type="button" id="btnMarcarTudoLido">Marcar todos como lidos</button>
+                                </div>
+                                <div id="listaNotif"></div>
+                            </div>
+                        </li>
+                        <li class="grupo-tema">
+                            <span id="rotuloTema"></span>
+                            <button class="btn-tema" id="btnAlternarTema" aria-label="Alternar modo escuro">
+                                <div class="pino-tema"></div>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="sobreposicao" hidden></div>
+            <section id="modal-cynx" role="dialog" aria-modal="true" aria-label="Assistente virtual Cynx" aria-hidden="true">
+                <header class="cabecalho-cynx">
+                    <div class="bloco-info">
+                        <div class="avatar" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div>
+                            <strong>Cynx</strong>
+                            <span>Assistente de apoio do CampoSync</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-icone" id="btnFecharCynx" aria-label="Fechar assistente">
+                        <span>&times;</span>
+                    </button>
+                </header>
+
+                <div class="status-cynx">
+                    <div>
+                        <strong>Status</strong>
+                        <span id="textoStatus">Pronto para ajudar</span>
+                    </div>
+                    <button type="button" class="btn-secundario" id="btnResetarCynx">Nova conversa</button>
+                </div>
+
+                <div id="batePapoCynx" aria-live="polite"></div>
+
+                <section class="atalhos" aria-label="Atalhos rápidos">
+                    <button type="button" data-atalho="estoque">Estoque</button>
+                    <button type="button" data-atalho="alertas">Alertas</button>
+                    <button type="button" data-atalho="historico">Histórico</button>
+                    <button type="button" data-atalho="relatorios">Relatórios</button>
+                </section>
+
+                <form class="entrada-cynx" id="formCynx">
+                    <label class="apenas-leitor" for="entradaMsg">Digite sua mensagem</label>
+                    <input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
+                        placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios">
+                    <button type="submit" aria-label="Enviar mensagem">Enviar</button>
+                    <button type="button" id="btnMicrofone" aria-pressed="false">Falar</button>
+                    <button type="button" id="btnAlternarVoz" aria-pressed="true">Voz ligada</button>
+                </form>
+            </section>
+            <div class="cards-info">
+                <div class="card-info">
+                    <div class="icone-card" aria-hidden="true"><img
+                            src="https://img.icons8.com/?size=100&id=IqOuHfdJfL5M&format=png&color=000000" alt="" width="30">
+                    </div>
+                    <h3>Total Gasto</h3>
+                    <p id="totalGasto">R$ 0,00</p>
+                </div>
+                <div class="card-info">
+                    <div class="icone-card" aria-hidden="true"><img
+                            src="https://img.icons8.com/?size=100&id=0WAmgtfWSFyr&format=png&color=000000" alt=""
+                            width="30"></div>
+                    <h3>Itens Comprados</h3>
+                    <p id="itensComprados">0</p>
+                </div>
+                <div class="card-info">
+                    <div class="icone-card" aria-hidden="true"><img
+                            src="https://img.icons8.com/?size=100&id=5tH5sHqq0t2q&format=png&color=000000" alt=""
+                            width="30"></div>
+                    <h3>Faltas em Estoque</h3>
+                    <p id="faltasEstoque">0</p>
+                </div>
+            </div>
+            <section class="compras-grid">
+                <article class="painel-compras painel-form-compras">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <p class="sobrelinha-secao">Lançamento rápido</p>
+                            <h3>Registrar compra</h3>
+                        </div>
+                        <span class="tag-secao">Controle mensal</span>
+                    </div>
+
+                    <form id="formCompra" class="form-compra">
+                        <div class="grade-campos">
+                            <label>
+                                Item
+                                <input type="text" id="itemCompra" name="item" placeholder="Ex.: Ração inicial"
+                                    required>
+                            </label>
+
+                            <label>
+                                Destino / aplicação
+                                <select id="categoriaCompra" name="category" required>
+                                    <option value="">Selecione</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Data da compra
+                                <input type="date" id="dataCompra" name="date" required>
+                            </label>
+
+                            <label>
+                                Quantidade
+                                <input type="number" id="quantidadeCompra" name="quantity" min="1" step="1"
+                                    placeholder="0" required>
+                            </label>
+
+                            <label>
+                                Valor unitário
+                                <input type="number" id="valorUnitCompra" name="unitPrice" min="0" step="0.01"
+                                    placeholder="0,00" required>
+                            </label>
+                        </div>
+
+                        <label>
+                            Observações
+                            <textarea id="obsCompra" name="notes" rows="3"
+                                placeholder="Detalhes da compra, lote, prazo de entrega ou informe se é um material de uso geral."></textarea>
+                        </label>
+
+                        <p class="retorno-form" id="retornoCompra" aria-live="polite"></p>
+
+                        <div class="acoes-compra">
+                            <button type="reset" class="btn-fantasma">Limpar</button>
+                            <button type="submit" class="btn-acao-primaria">Salvar compra</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="painel-compras grafico-periodo">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <p class="sobrelinha-secao">Visão analítica</p>
+                            <h3>Gastos por mês</h3>
+                        </div>
+                    </div>
+                    <canvas id="graficoGastos"></canvas>
+                </article>
+            </section>
+
+            <section class="compras-grid compras-grid-bottom">
+                <article class="painel-compras mobile-hide-history">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <p class="sobrelinha-secao">Acompanhamento</p>
+                            <h3>Histórico de compras</h3>
+                        </div>
+
+                        <div class="barra-ferramentas">
+                            <div class="search-input-group search-input-group--wide">
+                                <label class="apenas-leitor" for="buscaCompra">Buscar compra</label>
+                                <input type="search" id="buscaCompra" placeholder="Buscar item">
+                                <button type="button" class="search-trigger" aria-label="Buscar item"></button>
+                            </div>
+                            <div class="campo-acessivel">
+                                <label class="apenas-leitor" for="filtroCategoriaCompra">Filtrar por destino</label>
+                                <select id="filtroCategoriaCompra">
+                                    <option value="all">Todos os destinos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="caixa-tabela">
+                        <table class="tabela-compra">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Destino</th>
+                                    <th>Mês</th>
+                                    <th>Qtd.</th>
+                                    <th>Total</th>
+                                    <th>Estoque</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpoTabelaCompra"></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="painel-compras">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <p class="sobrelinha-secao">Prioridades</p>
+                            <h3>Itens com estoque crítico</h3>
+                        </div>
+                    </div>
+                    <div class="lista-critica" id="listaCritica"></div>
+                </article>
+            </section>
+        </section>
+    </main>
+    
+    <script src="index.js"></script>
+</body>
+
+</html>

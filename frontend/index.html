@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="favicon.ico" />
+    <title>CampoSync | Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body class="pagina-dashboard">
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+    <header class="menu-lateral">
+      <div class="container">
+        <div class="area-logo">
+          <img src="imagens/patativa.png" alt="Logo do CampoSync" class="logo" />
+            <h1>CampoSync</h1>
+        </div>
+        <nav class="barra-nav" aria-label="Menu principal">
+          <ul>
+            <li>
+              <a class="ativo" aria-current="page" href="index.html"
+                >Dashboard</a
+              >
+            </li>
+            <li><a href="areas_produtivas.html">Áreas Produtivas</a></li>
+            <li><a href="gestao_vendas.html">Gestão de Vendas</a></li>
+            <li><a href="gestao_compras.html">Gestão de Compras</a></li>
+            <li><a href="suprimentos.html">Suprimentos</a></li>
+            <li><a href="consumos.html">Consumos</a></li>
+            <li><a href="ferramentas.html">Ferramentas</a></li>
+            <li><a href="historico.html">Histórico</a></li>
+            <li><a href="perfil.html">Perfil</a></li>
+            <li>
+              <a class="acessibilidade" href="acessibilidade.html"
+                >Acessibilidade</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="conteudo-principal" tabindex="-1">
+      <section class="corpo-left">
+        <div class="menu-topo">
+          <h2>Dashboard</h2>
+          <div class="acoes-topo">
+            <ul class="lista-topo">
+              <li>
+                <button
+                  class="btn-cynx"
+                  id="btnAbrirCynx"
+                  type="button"
+                  aria-label="Abrir assistente Cynx"
+                >
+                  <div class="robo" aria-hidden="true">
+                    <div class="chapeu">
+                      <div class="aba"></div>
+                      <div class="topo"></div>
+                    </div>
+                    <div class="cabeca">
+                      <div class="visor">
+                        <div class="olhos">
+                          <div class="olho"></div>
+                          <div class="olho"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </li>
+              <li class="grupo-notif">
+                <button
+                  class="btn-sino"
+                  id="btnSino"
+                  aria-label="Notificações"
+                  aria-expanded="false"
+                ></button>
+                <span class="badge" id="badge" hidden>0</span>
+
+                <div
+                  class="painel-alertas"
+                  id="painelAlertas"
+                  role="region"
+                  aria-label="Alertas recentes"
+                >
+                  <div class="cabecalho-painel">
+                    <span>Alertas recentes</span>
+                    <button type="button" id="btnMarcarTudoLido">
+                      Marcar todos como lidos
+                    </button>
+                  </div>
+                  <div id="listaNotif"></div>
+                </div>
+              </li>
+              <li class="grupo-tema">
+                <span id="rotuloTema"></span>
+                <button
+                  class="btn-tema"
+                  id="btnAlternarTema"
+                  aria-label="Alternar modo escuro"
+                >
+                  <div class="pino-tema"></div>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="sobreposicao" hidden></div>
+        <section
+          id="modal-cynx"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Assistente virtual Cynx"
+          aria-hidden="true"
+        >
+          <header class="cabecalho-cynx">
+            <div class="bloco-info">
+              <div class="avatar" aria-hidden="true">
+                <span></span>
+                <span></span>
+              </div>
+              <div>
+                <strong>Cynx</strong>
+                <span>Assistente de apoio do CampoSync</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="btn-icone"
+              id="btnFecharCynx"
+              aria-label="Fechar assistente"
+            >
+              <span>&times;</span>
+            </button>
+          </header>
+
+          <div class="status-cynx">
+            <div>
+              <strong>Status</strong>
+              <span id="textoStatus">Pronto para ajudar</span>
+            </div>
+            <button type="button" class="btn-secundario" id="btnResetarCynx">
+              Nova conversa
+            </button>
+          </div>
+
+          <div id="batePapoCynx" aria-live="polite"></div>
+
+          <section class="atalhos" aria-label="Atalhos rápidos">
+            <button type="button" data-atalho="estoque">Estoque</button>
+            <button type="button" data-atalho="alertas">Alertas</button>
+            <button type="button" data-atalho="historico">Histórico</button>
+            <button type="button" data-atalho="relatorios">Relatórios</button>
+          </section>
+
+          <form class="entrada-cynx" id="formCynx">
+            <label class="apenas-leitor" for="entradaMsg"
+              >Digite sua mensagem</label
+            >
+            <input
+              type="text"
+              id="entradaMsg"
+              maxlength="180"
+              autocomplete="off"
+              placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios"
+            />
+            <button type="submit" aria-label="Enviar mensagem">Enviar</button>
+            <button type="button" id="btnMicrofone" aria-pressed="false">
+              Falar
+            </button>
+            <button type="button" id="btnAlternarVoz" aria-pressed="true">
+              Voz ligada
+            </button>
+          </form>
+        </section>
+
+        <section class="hero-dashboard">
+          <article class="painel-compras hero-dashboard__principal">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Visão geral</p>
+                <h3>Painel central da operação</h3>
+              </div>
+              <span class="tag-secao" id="dashboardHeroTag"
+                >Carregando</span
+              >
+            </div>
+
+            <p class="hero-dashboard__texto" id="dashboardHeroText">
+              Acompanhe compras, vendas, estoque, ferramentas e ações do dia em
+              uma única visão de campo.
+            </p>
+
+            <ul class="hero-dashboard__lista" id="dashboardHeroList"></ul>
+          </article>
+
+          <article class="painel-compras hero-dashboard__secundario">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Resumo rápido</p>
+                <h3>Indicadores-chave</h3>
+              </div>
+              <span class="tag-secao">Operação rural</span>
+            </div>
+
+            <div class="hero-dashboard__grade">
+              <div
+                class="hero-dashboard__mini-card"
+                id="dashboardMiniCardUnits"
+              >
+                <strong>0</strong>
+                <p>unidades em operação acompanhadas no painel.</p>
+              </div>
+              <div
+                class="hero-dashboard__mini-card"
+                id="dashboardMiniCardAlerts"
+              >
+                <strong>0</strong>
+                <p>alertas não lidos e 0 ferramenta(s) em manutenção.</p>
+              </div>
+              <div
+                class="hero-dashboard__mini-card"
+                id="dashboardMiniCardRevenue"
+              >
+                <strong>R$ 0,00</strong>
+                <p>faturamento consolidado a partir das vendas registradas.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="cards-info" aria-label="Resumo da dashboard">
+          <div class="card-info">
+            <div class="icone-card" aria-hidden="true">
+              <img
+                src="https://img.icons8.com/?size=100&id=jQozR5MuexzB&format=png&color=000000"
+                alt="Unidades monitoradas"
+                width="30"
+              />
+            </div>
+            <h3>Unidades monitoradas</h3>
+            <p id="dashboardUnitsValue">0</p>
+            <span id="dashboardUnitsLabel"
+              >Unidades com acompanhamento ativo.</span
+            >
+          </div>
+          <div class="card-info">
+            <div class="icone-card" aria-hidden="true">
+              <img
+                src="https://img.icons8.com/?size=100&id=5tH5sHqq0t2q&format=png&color=000000"
+                alt="Alertas críticos"
+                width="30"
+              />
+            </div>
+            <h3>Alertas críticos</h3>
+            <p id="dashboardAlertsValue">0</p>
+            <span id="dashboardAlertsLabel"
+              >Pendências operacionais e de estoque.</span
+            >
+          </div>
+          <div class="card-info">
+            <div class="icone-card" aria-hidden="true">
+              <img
+                src="https://img.icons8.com/?size=100&id=VWrzCw0rvxVx&format=png&color=000000"
+                alt="Total de estoque"
+                width="30"
+              />
+            </div>
+            <h3>Total de Estoque</h3>
+            <p id="dashboardOrdersValue">0</p>
+            <span id="dashboardOrdersLabel"
+              >Total de suprimentos no estoque</span
+            >
+          </div>
+        </section>
+
+        <section class="compras-grid mapa-dashboard">
+          <article class="painel-compras mapa-dashboard__painel">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Mapa das unidades</p>
+                <h3>Localização produtiva</h3>
+              </div>
+              <span class="tag-secao">Normal / Satélite</span>
+            </div>
+
+            <div id="mapa" class="mapa" aria-label="Mapa das unidades produtivas"></div>
+          </article>
+        </section>
+
+        <section class="compras-grid">
+          <article class="painel-compras">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Acompanhamento diário</p>
+                <h3>Desempenho por setor</h3>
+              </div>
+              <span class="tag-secao">Leitura operacional</span>
+            </div>
+
+            <div class="lista-critica" id="dashboardPerformanceList"></div>
+          </article>
+
+          <article class="painel-compras">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Alertas recentes</p>
+                <h3>Itens prioritários</h3>
+              </div>
+              <span class="tag-secao">Atenção</span>
+            </div>
+
+            <div class="lista-critica" id="dashboardAlertsList"></div>
+          </article>
+        </section>
+
+        <section class="compras-grid compras-grid-bottom">
+          <article class="painel-compras painel-form-compras">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Lançamento rápido</p>
+                <h3>Registrar ação</h3>
+              </div>
+              <span class="tag-secao">Controle mensal</span>
+            </div>
+
+            <form class="form-compra" id="formAcoesDashboard">
+              <input type="hidden" name="acao_id" id="acaoIdDashboard" />
+              <div class="grade-campos">
+                <label>
+                  Ação
+                  <textarea
+                    name="acao"
+                    rows="3"
+                    placeholder="Descreva a ação realizada ou planejada"
+                    required
+                  ></textarea>
+                </label>
+
+                <label>
+                  Categoria
+                  <select id="unitSelect" name="unidade" required>
+                    <option value="">Selecione</option>
+                  </select>
+                </label>
+
+                <label>
+                  Data da ação
+                  <input type="date" name="data_acao" required />
+                </label>
+
+                <label>
+                  Hora da ação
+                  <input
+                    type="time"
+                    name="hora_acao"
+                    step="60"
+                    placeholder="14:30"
+                    required
+                  />
+                </label>
+              </div>
+
+              <label>
+                Observações
+                <textarea
+                  name="detalhes_acao"
+                  rows="3"
+                  placeholder="Informe contexto, responsáveis, ferramentas usadas ou próximos passos"
+                ></textarea>
+              </label>
+
+              <p class="retorno-form" aria-live="polite"></p>
+
+              <div class="acoes-compra">
+                <button type="reset" class="btn-fantasma">Limpar</button>
+                <button
+                  type="submit"
+                  class="btn-acao-primaria"
+                  id="btnSalvarAcao"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <article class="painel-compras">
+            <div class="cabecalho-secao">
+              <div>
+                <p class="sobrelinha-secao">Ações cadastradas</p>
+                <h3>Gerenciar ações</h3>
+              </div>
+              <span class="tag-secao">Edição rápida</span>
+            </div>
+
+            <div class="lista-critica" id="listaAcoesDashboard">
+              <p class="estado-vazio">Nenhuma ação cadastrada até o momento.</p>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

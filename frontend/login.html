@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Login</title>
+</head>
+
+<body class="corpo-login public-page app-ready">
+    <main class="estrutura-login">
+        <section class="painel-login">
+            <div class="painel-marca">
+                <span class="tag-marca">CampoSync</span>
+                <h1>Bem-vindo(a) ao CampoSync</h1>
+                <p>Sua plataforma completa para gestão de operações.</p>
+                <p>Com o CampoSync, você centraliza informações, acompanha atividades em tempo real e melhora a tomada
+                    de decisões com mais segurança e eficiência.</p>
+                <p>Faça login para acessar seu painel e manter tudo sob controle em um só lugar.</p>
+            </div>
+
+            <div class="painel-form">
+                <form class="form-login" id="formLogin">
+                    <div class="texto-form">
+                        <p class="sobrelinha">Acesso</p>
+                        <h2>Entrar na sua conta</h2>
+                        <p>Use o e-mail e a senha cadastrados para acessar o CampoSync.</p>
+                    </div>
+
+                    <div class="campo">
+                        <label for="emailAcesso">Email</label>
+                        <input type="email" id="emailAcesso" name="email" placeholder="voce@exemplo.com" required>
+                    </div>
+
+                    <div class="campo">
+                        <div class="linha-campo">
+                            <label for="senhaAcesso">Senha</label>
+                            <a href="recuperar-senha.html">Esqueceu sua senha?</a>
+                        </div>
+                        <div class="campo-senha">
+                            <input type="password" id="senhaAcesso" name="password" placeholder="Digite sua senha"
+                                required>
+                            <button type="button" class="btn-toggle-senha" data-toggle-password
+                                onclick="togglePasswordField('senhaAcesso', this)" aria-controls="senhaAcesso"
+                                aria-label="Mostrar senha" aria-pressed="false">
+                                <img class="icone-olho"
+                                    src="https://img.icons8.com/?size=100&id=85130&format=png&color=214E38"
+                                    data-hidden-src="https://img.icons8.com/?size=100&id=85130&format=png&color=214E38"
+                                    data-visible-src="https://img.icons8.com/?size=100&id=59814&format=png&color=214E38"
+                                    alt="" aria-hidden="true">
+                                <span class="texto-toggle-senha">Mostrar senha</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="opcoes-form">
+                        <label class="caixa-marcacao">
+                            <input type="checkbox" name="lembrar">
+                            <span>Lembrar de mim</span>
+                        </label>
+                    </div>
+
+                    <p class="retorno-form" aria-live="polite"></p>
+
+                    <button type="submit" class="btn-primario">Entrar</button>
+
+                    <div class="divisor">
+                        <span>ou continue com</span>
+                    </div>
+
+                    <button type="button" class="btn-social google" onclick="loginGoogle()">Google</button>
+
+                    <p class="rodape-form">Ainda não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="index.js"></script>
+</body>
+
+</html>

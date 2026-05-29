@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Ferramentas</title>
+</head>
+
+<body>
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+    <header class="menu-lateral">
+        <div class="conteiner">
+            <div class="area-logo">
+                <img src="imagens/patativa.png" alt="logo CampoSync" class="logo">
+                <h1>CampoSync</h1>
+            </div>
+            <nav class="barra-nav" aria-label="Menu principal">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="areas_produtivas.html">Áreas Produtivas</a></li>
+                    <li><a href="gestao_vendas.html">Gestão de Vendas</a></li>
+                    <li><a href="gestao_compras.html">Gestão de Compras</a></li>
+                    <li><a href="suprimentos.html">Suprimentos</a></li>
+                    <li><a href="consumos.html">Consumos</a></li>
+                    <li><a class="ativo" aria-current="page" href="ferramentas.html">Ferramentas</a></li>
+                    <li><a href="historico.html">Histórico</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a class="acessibilidade" href="acessibilidade.html">Acessibilidade</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="conteudo-principal" tabindex="-1">
+        <section class="corpo-left">
+            <div class="menu-topo">
+                <h2>Ferramentas</h2>
+                <div class="acoes-topo">
+                    <ul class="lista-topo">
+                        <li><button class="btn-cynx" id="btnAbrirCynx" type="button" aria-label="Abrir assistente Cynx">
+                                <div class="robo" aria-hidden="true">
+                                    <div class="chapeu">
+                                        <div class="aba"></div>
+                                        <div class="topo"></div>
+                                    </div>
+                                    <div class="cabeca">
+                                        <div class="visor">
+                                            <div class="olhos">
+                                                <div class="olho"></div>
+                                                <div class="olho"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button></li>
+                        <li class="grupo-notif">
+                            <button class="btn-sino" id="btnSino" aria-label="Notificações"
+                                aria-expanded="false"></button>
+                            <span class="badge" id="badge" hidden>0</span>
+
+                            <div class="painel-alertas" id="painelAlertas" role="region" aria-label="Alertas recentes">
+                                <div class="cabecalho-painel">
+                                    <span>Alertas recentes</span>
+                                    <button type="button" id="btnMarcarTudoLido">Marcar todos como lidos</button>
+                                </div>
+                                <div id="listaNotif"></div>
+                            </div>
+                        </li>
+                        <li class="grupo-tema">
+                            <span id="rotuloTema"></span>
+                            <button class="btn-tema" id="btnAlternarTema" aria-label="Alternar modo escuro">
+                                <div class="pino-tema"></div>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="sobreposicao" hidden></div>
+            <section id="modal-cynx" role="dialog" aria-modal="true" aria-label="Assistente virtual Cynx"
+                aria-hidden="true">
+                <header class="cabecalho-cynx">
+                    <div class="bloco-info">
+                        <div class="avatar" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div>
+                            <strong>Cynx</strong>
+                            <span>Assistente de apoio do CampoSync</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-icone" id="btnFecharCynx" aria-label="Fechar assistente">
+                        <span>&times;</span>
+                    </button>
+                </header>
+
+                <div class="status-cynx">
+                    <div>
+                        <strong>Status</strong>
+                        <span id="textoStatus">Pronto para ajudar</span>
+                    </div>
+                    <button type="button" class="btn-secundario" id="btnResetarCynx">Nova conversa</button>
+                </div>
+
+                <div id="batePapoCynx" aria-live="polite"></div>
+
+                <section class="atalhos" aria-label="Atalhos rápidos">
+                    <button type="button" data-atalho="estoque">Estoque</button>
+                    <button type="button" data-atalho="alertas">Alertas</button>
+                    <button type="button" data-atalho="historico">Histórico</button>
+                    <button type="button" data-atalho="relatorios">Relatórios</button>
+                </section>
+
+                <form class="entrada-cynx" id="formCynx">
+                    <label class="apenas-leitor" for="entradaMsg">Digite sua mensagem</label>
+                    <input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
+                        placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios">
+                    <button type="submit" aria-label="Enviar mensagem">Enviar</button>
+                    <button type="button" id="btnMicrofone" aria-pressed="false">Falar</button>
+                    <button type="button" id="btnAlternarVoz" aria-pressed="true">Voz ligada</button>
+                </form>
+            </section>
+
+            <section class="cards-info" aria-label="Resumo de ferramentas">
+                <div class="card-info">
+                    <div class="icone-card" aria-hidden="true">
+                        <img src="https://img.icons8.com/?size=100&id=20544&format=png&color=000000" alt="" width="30">
+                    </div>
+                    <h3>Ferramentas cadastradas</h3>
+                    <p id="totalMateriais">0</p>
+                </div>
+                <div class="card-info">
+                    <div class="icone-card" aria-hidden="true">
+                        <img src="https://img.icons8.com/?size=100&id=OZuepOQd0omj&format=png&color=000000" alt=""
+                            width="30">
+                    </div>
+                    <h3>Indisponíveis</h3>
+                    <p id="materiaisManutencao">0</p>
+                </div>
+                <div class="card-info">
+                    <div class="icone-card" aria-hidden="true">
+                        <img src="https://img.icons8.com/?size=100&id=70yRC8npwT3d&format=png&color=000000" alt=""
+                            width="30">
+                    </div>
+                    <h3>Disponíveis</h3>
+                    <p id="materiaisDisponiveis">0</p>
+                </div>
+            </section>
+
+            <section class="compras-grid">
+                <article class="painel-compras painel-form-compras">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <p class="sobrelinha-secao">Cadastro rápido</p>
+                            <h3>Registrar ferramenta</h3>
+                        </div>
+                        <span class="tag-secao">Patrimônio</span>
+                    </div>
+
+                    <form class="form-compra" id="formMateriais">
+                        <div class="grade-campos">
+                            <label>
+                                Ferramenta
+                                <input type="text" name="material" placeholder="Ex.: Pulverizador costal" required>
+                            </label>
+
+                            <label>
+                                Quantidade
+                                <input type="number" name="quantidade" min="1" step="1" placeholder="0" required>
+                            </label>
+
+                            <label>
+                                Categoria
+                                <select id="categoriaMaterial" name="categoria" required>
+                                    <option value="">Selecione</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Status
+                                <select id="filtroStatus" name="status" required>
+                                    <option value="">Selecione</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Domínio
+                                <input type="text" name="dominio" placeholder="Ex.: Horticultura">
+                            </label>
+
+                            <label>
+                                Última inspeção
+                                <input type="date" name="ultima_inspecao">
+                            </label>
+                        </div>
+
+                        <label>
+                            Observações
+                            <textarea name="observacoes" rows="3"
+                                placeholder="Informe local de uso, responsável, manutenção pendente ou número do lote."></textarea>
+                        </label>
+
+                        <p class="retorno-form" aria-live="polite"></p>
+
+                        <div class="acoes-compra">
+                            <button type="reset" class="btn-fantasma">Limpar</button>
+                            <button type="submit" class="btn-acao-primaria">Salvar ferramenta</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="painel-compras">
+                    <div class="cabecalho-secao">
+                        <div>
+                            <p class="sobrelinha-secao">Panorama rápido</p>
+                            <h3>Controle de manutenção</h3>
+                        </div>
+                        <span class="tag-secao">Acompanhamento</span>
+                    </div>
+
+                    <div class="lista-critica" id="resumoMateriaisPainel">
+                        <article class="item-critico">
+                            <div>
+                                <strong>Próxima revisão</strong>
+                                <span>Ferramentas com inspeção mais antiga aparecem aqui.</span>
+                            </div>
+                            <div class="metrica-critica">
+                                <b>0</b>
+                                <small>itens</small>
+                            </div>
+                        </article>
+                    </div>
+                </article>
+            </section>
+
+            <section class="suprimentos-filtros mobile-hide-history" aria-label="Consulta de ferramentas">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Consulta rapida</p>
+                        <h3>Lista de ferramentas</h3>
+                    </div>
+                    <span class="tag-secao">Busca e filtros</span>
+                </div>
+
+                <div class="barra-ferramentas">
+                    <div class="search-input-group">
+                        <label class="apenas-leitor" for="buscaMaterial">Buscar ferramenta</label>
+                        <input type="search" id="buscaMaterial" placeholder="Buscar ferramenta, domínio ou observações">
+                        <button type="button" class="search-trigger" aria-label="Buscar ferramenta"></button>
+                    </div>
+
+                    <div class="campo-acessivel">
+                        <label class="apenas-leitor" for="filtroCategoriaBusca">Filtrar por categoria</label>
+                        <select id="filtroCategoriaBusca">
+                            <option value="todos">Todas as categorias</option>
+                        </select>
+                    </div>
+
+                    <div class="campo-acessivel">
+                        <label class="apenas-leitor" for="filtroStatusBusca">Filtrar por status</label>
+                        <select id="filtroStatusBusca">
+                            <option value="todos">Todos os status</option>
+                        </select>
+                    </div>
+                    <button id="btnFiltrar" type="button" class="btn-acao-primaria">Filtrar</button>
+                    <button id="btnLimpar" type="button" class="btn-fantasma">Limpar</button>
+                </div>
+
+                <table class="tabela-suprimentos">
+                    <thead>
+                        <tr>
+                            <th>Ferramenta</th>
+                            <th>Categoria</th>
+                            <th>Qtd.</th>
+                            <th>Status</th>
+                            <th>Domínio</th>
+                            <th>Última inspeção</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabelaMateriais">
+                        <tr>
+                            <td colspan="7" class="linha-vazia">Nenhuma ferramenta disponível no momento.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+
+    <script src="index.js"></script>
+</body>
+
+</html>

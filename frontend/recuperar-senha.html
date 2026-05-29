@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Recuperar Senha</title>
+</head>
+
+<body class="corpo-login public-page app-ready">
+    <main class="estrutura-login">
+        <section class="painel-login">
+            <div class="painel-marca">
+                <span class="tag-marca">CampoSync</span>
+                <h1>Recuperar acesso</h1>
+                <p>Esqueceu sua senha? Sem problemas.</p>
+                <p>Digite o e-mail associado à sua conta e enviaremos um link seguro para redefinir seu acesso.</p>
+                <p>O processo é rápido, seguro e garante a proteção dos seus dados.</p>
+            </div>
+
+            <div class="painel-form">
+                <form class="form-login" id="formRecuperarSenha">
+                    <div class="texto-form">
+                        <p class="sobrelinha">Suporte</p>
+                        <h2>Recuperar senha</h2>
+                        <p id="descricaoRecuperacaoSenha">Informe seu e-mail para receber o código de redefinição de
+                            senha.</p>
+                    </div>
+
+                    <div class="campo" id="campoEmailRecuperacao">
+                        <label for="emailRecuperacao">Email</label>
+                        <input type="email" id="emailRecuperacao" name="email" placeholder="voce@exemplo.com" required>
+                    </div>
+
+                    <div id="camposRedefinicaoSenha" hidden>
+                        <div class="campo">
+                            <label for="codigoRecuperacao">Código recebido</label>
+                            <input type="text" id="codigoRecuperacao" name="code" inputmode="numeric"
+                                autocomplete="one-time-code" maxlength="6" placeholder="Digite o código de 6 dígitos">
+                        </div>
+
+                        <div class="campo">
+                            <label for="novaSenhaRecuperacao">Nova senha</label>
+                            <div class="campo-senha">
+                                <input type="password" id="novaSenhaRecuperacao" name="password"
+                                    placeholder="Mínimo de 8 caracteres">
+                                <button type="button" class="btn-toggle-senha" data-toggle-password
+                                    onclick="togglePasswordField('novaSenhaRecuperacao', this)"
+                                    aria-controls="novaSenhaRecuperacao" aria-label="Mostrar senha"
+                                    aria-pressed="false">
+                                    <img class="icone-olho"
+                                        src="https://img.icons8.com/?size=100&id=85130&format=png&color=214E38"
+                                        data-hidden-src="https://img.icons8.com/?size=100&id=85130&format=png&color=214E38"
+                                        data-visible-src="https://img.icons8.com/?size=100&id=59814&format=png&color=214E38"
+                                        alt="" aria-hidden="true">
+                                    <span class="texto-toggle-senha">Mostrar senha</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="campo">
+                            <label for="confirmarSenhaRecuperacao">Confirmar nova senha</label>
+                            <div class="campo-senha">
+                                <input type="password" id="confirmarSenhaRecuperacao" name="confirmPassword"
+                                    placeholder="Repita a nova senha">
+                                <button type="button" class="btn-toggle-senha" data-toggle-password
+                                    onclick="togglePasswordField('confirmarSenhaRecuperacao', this)"
+                                    aria-controls="confirmarSenhaRecuperacao" aria-label="Mostrar senha"
+                                    aria-pressed="false">
+                                    <img class="icone-olho"
+                                        src="https://img.icons8.com/?size=100&id=85130&format=png&color=214E38"
+                                        data-hidden-src="https://img.icons8.com/?size=100&id=85130&format=png&color=214E38"
+                                        data-visible-src="https://img.icons8.com/?size=100&id=59814&format=png&color=214E38"
+                                        alt="" aria-hidden="true">
+                                    <span class="texto-toggle-senha">Mostrar senha</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="retorno-form" aria-live="polite"></p>
+
+                    <button type="submit" class="btn-primario" id="botaoRecuperacaoSenha">Enviar instruções</button>
+
+                    <p class="rodape-form">Lembrou sua senha? <a href="login.html">Voltar ao login</a></p>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Acessibilidade</title>
+</head>
+
+<body class="pagina-acessibilidade">
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+
+   <header class="menu-lateral">
+        <div class="conteiner">
+            <div class="area-logo">
+                <img src="imagens/patativa.png" alt="logo CampoSync" class="logo">
+                <h1>CampoSync</h1>
+            </div>
+            <nav class="barra-nav" aria-label="Menu principal">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="areas_produtivas.html">Áreas Produtivas</a></li>
+                    <li><a href="gestao_vendas.html">Gestão de Vendas</a></li>
+                    <li><a href="gestao_compras.html">Gestão de Compras</a></li>
+                    <li><a href="suprimentos.html">Suprimentos</a></li>
+                    <li><a href="consumos.html">Consumos</a></li>
+                    <li><a href="ferramentas.html">Ferramentas</a></li>
+                    <li><a href="historico.html">Histórico</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a class="ativo acessibilidade" aria-current="page" href="acessibilidade.html">Acessibilidade</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="conteudo-principal" class="acessibilidade-conteudo-principal" tabindex="-1">
+
+        <h2 class="acessibilidade-titulo">Acessibilidade</h2>
+
+        <section class="acessibilidade-hero-card">
+            <div class="acessibilidade-hero-esquerda">
+                <div class="acessibilidade-icone">♿</div>
+                <div>
+                    <h3>Personalize sua experiência</h3>
+                    <p>
+                        Ajuste as configurações para facilitar a navegação
+                        e tornar o CampoSync mais acessível para você.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="acessibilidade-grid">
+
+            <div class="acessibilidade-card">
+                <h4>Tamanho do Texto</h4>
+                <div class="acessibilidade-opcoes" data-accessibility-setting="texto">
+                    <button type="button" data-accessibility-value="pequeno">A- <span>Menor</span></button>
+                    <button type="button" class="acessibilidade-opcao-ativa" data-accessibility-value="normal">A <span>Normal</span></button>
+                    <button type="button" data-accessibility-value="grande">A+ <span>Maior</span></button>
+                </div>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Modo Daltonismo</h4>
+                <div class="acessibilidade-opcoes" data-accessibility-setting="daltonismo">
+                    <button type="button" class="acessibilidade-opcao-ativa" data-accessibility-value="normal">Normal</button>
+                    <button type="button" data-accessibility-value="deuteranopia">Deuteranopia</button>
+                    <button type="button" data-accessibility-value="protanopia">Protanopia</button>
+                    <button type="button" data-accessibility-value="tritanopia">Tritanopia</button>
+                </div>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Contraste</h4>
+                <div class="acessibilidade-opcoes" data-accessibility-setting="contraste">
+                    <button type="button" class="acessibilidade-opcao-ativa" data-accessibility-value="padrao">Padrão</button>
+                    <button type="button" data-accessibility-value="alto">Alto</button>
+                    <button type="button" data-accessibility-value="max">Máximo</button>
+                </div>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Espaçamento</h4>
+                <div class="acessibilidade-opcoes" data-accessibility-setting="espacamento">
+                    <button type="button" data-accessibility-value="compacto">Compacto</button>
+                    <button type="button" class="acessibilidade-opcao-ativa" data-accessibility-value="normal">Normal</button>
+                    <button type="button" data-accessibility-value="amplo">Amplo</button>
+                </div>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Outras Opções</h4>
+
+                <button type="button" class="acessibilidade-link-item">Restaurar padrões</button>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Leitor de Tela</h4>
+
+                <div class="acessibilidade-toggle-item">
+                    <span>Ativar leitor de tela</span>
+                    <input type="checkbox" data-accessibility-toggle="leitor">
+                </div>
+            </div>
+
+            <div class="acessibilidade-card acessibilidade-preview">
+                <h4>Pré-visualização</h4>
+
+                <button type="button" class="acessibilidade-btn-preview">Botão de exemplo</button>
+
+                <div class="acessibilidade-preview-info">
+                    <p>🛒 Vendas <strong>415</strong></p>
+                    <p>📦 Produtos <strong>23</strong></p>
+                    <p>🧾 Ticket Médio <strong>R$ 78,19</strong></p>
+                </div>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Como usar</h4>
+
+                <ol class="acessibilidade-lista">
+                    <li>Altere as opções ao lado</li>
+                    <li>Veja a pré-visualização</li>
+                    <li>As mudanças são aplicadas automaticamente</li>
+                </ol>
+            </div>
+
+            <div class="acessibilidade-card">
+                <h4>Atalhos de Teclado</h4>
+
+                <div class="acessibilidade-opcoes">
+                    <button type="button">1. Alt + V</button>
+                    <button type="button">2. Alt + B</button>
+                    <button type="button">3. Alt + S</button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+    <script src="index.js"></script>
+</body>
+</html>

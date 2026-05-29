@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Plantas Ornamentais</title>
+</head>
+
+<body class="pagina-unidade-produtiva">
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+    <header class="header-unidades">
+        <div class="acoes-topo">
+            <ul class="lista-topo">
+                <li><a class="header-unidades__voltar" href="areas_produtivas.html"
+                        aria-label="Voltar para áreas produtivas"><img
+                            src="https://img.icons8.com/?size=100&id=jqVLTIkbz7hy&format=png&color=009D03"
+                            alt="Voltar para a home" width="30"></a></li>
+
+                <li class="grupo-tema"><span id="rotuloTema"></span><button class="btn-tema" id="btnAlternarTema"
+                        aria-label="Alternar modo escuro">
+                        <div class="pino-tema"></div>
+                    </button></li>
+            </ul>
+        </div>
+
+        <div class="header-unidades__titulo"><span class="header-unidades__tag">Unidade produtiva</span>
+            <h2>Plantas Ornamentais</h2>
+        </div>
+        
+        <div id="sobreposicao" hidden></div>
+        <section id="modal-cynx" role="dialog" aria-modal="true" aria-label="Assistente virtual Cynx" aria-hidden="true">
+            <header class="cabecalho-cynx">
+                <div class="bloco-info">
+                    <div class="avatar" aria-hidden="true"><span></span><span></span></div>
+                    <div><strong>Cynx</strong><span>Assistente de apoio do CampoSync</span></div>
+                </div><button type="button" class="btn-icone" id="btnFecharCynx"
+                    aria-label="Fechar assistente"><span>&times;</span></button>
+            </header>
+            <div class="status-cynx">
+                <div><strong>Status</strong><span id="textoStatus">Pronto para ajudar</span></div><button type="button"
+                    class="btn-secundario" id="btnResetarCynx">Nova conversa</button>
+            </div>
+            <div id="batePapoCynx" aria-live="polite"></div>
+            <section class="atalhos" aria-label="Atalhos rápidos"><button type="button"
+                    data-atalho="estoque">Estoque</button><button type="button"
+                    data-atalho="alertas">Alertas</button><button type="button"
+                    data-atalho="historico">Histórico</button><button type="button"
+                    data-atalho="relatorios">Relatórios</button></section>
+            <form class="entrada-cynx" id="formCynx"><label class="apenas-leitor" for="entradaMsg">Digite sua
+                    mensagem</label><input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
+                    placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios"><button type="submit"
+                    aria-label="Enviar mensagem">Enviar</button><button type="button" id="btnMicrofone"
+                    aria-pressed="false">Falar</button><button type="button" id="btnAlternarVoz" aria-pressed="true">Voz
+                    ligada</button></form>
+        </section>
+    </header>
+    <main id="conteudo-principal" class="pagina-piscicultura" data-unidade="plantas-ornamentais" tabindex="-1">
+        <section class="hero-piscicultura">
+            <div class="hero-piscicultura__conteudo"><img class="hero-piscicultura__imagem" id="imagemUnidadeProdutiva"
+                    src="imagens/Plantas-Ornamentais.jpg"
+                    alt="Cultivo de plantas ornamentais em viveiro"></div>
+            <aside class="hero-piscicultura__painel" aria-label="Resumo operacional do dia">
+                <p class="sobrelinha-secao">Operação do dia</p>
+                <ul class="lista-resumo-piscicultura" id="listaResumoUnidade"></ul>
+            </aside>
+        </section>
+        <section class="cards-info cards-info-unidade" aria-label="Resumo das plantas ornamentais">
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">01</div>
+                <h3 id="tituloCardEstrutura">Bancadas ativas</h3>
+                <p id="valorCardEstrutura">0</p><span id="descricaoCardEstrutura"></span>
+            </div>
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">02</div>
+                <h3 id="tituloCardAnimais">Mudas em manejo</h3>
+                <p id="valorCardAnimais">0</p><span id="descricaoCardAnimais"></span>
+            </div>
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">03</div>
+                <h3>Ração disponível</h3>
+                <p id="valorCardRacao">0 kg</p><span id="descricaoCardRacao"></span>
+            </div>
+        </section>
+
+        <section class="compras-grid compras-grid-piscicultura compras-grid-ciclo-vida">
+            <article class="painel-compras painel-form-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Controle de plantas</p>
+                        <h3>Cadastrar planta</h3>
+                    </div>
+                    <span class="tag-secao">Contagem e identificação</span>
+                </div>
+
+                <form class="form-compra" id="formAnimalSuino">
+                    <div class="grade-campos">
+                        <label>
+                            Nome da planta
+                            <input type="text" name="nome_planta" placeholder="Ex.: Rosa" required>
+                        </label>
+
+                        <label>
+                            Data de entrada
+                            <input type="date" name="data_entrada" required>
+                        </label>
+
+                        <label>
+                            Localização
+                            <input type="text" name="localizacao" placeholder="Ex.: Jardim 01" required>
+                        </label>
+                    </div>
+
+                    <label>
+                        Observações
+                        <textarea name="observacoes" rows="3" placeholder="Ex.: Planta saudável, cuidados especiais necessários."></textarea>
+                    </label>
+
+                    <p class="retorno-form" id="retornoAnimalSuino" aria-live="polite"></p>
+
+                    <div class="acoes-compra">
+                        <button type="reset" class="btn-fantasma">Limpar</button>
+                        <button type="submit" class="btn-acao-primaria">Cadastrar planta</button>
+                    </div>
+                </form>
+            </article>
+
+            <article class="painel-compras painel-form-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Histórico sanitário</p>
+                        <h3>Registrar evento</h3>
+                    </div>
+                    <span class="tag-secao">Da vida ao descarte</span>
+                </div>
+
+                <form class="form-compra" id="formEventoSuino">
+                    <div class="grade-campos">
+                        <label>
+                            Planta
+                            <select name="planta_id" id="eventoPlantaSelect" required>
+                                <option value="">Selecione a planta</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Data do evento
+                            <input type="date" name="data_evento" required>
+                        </label>
+
+                        <label>
+                            Tipo de evento
+                            <input type="text" name="tipo_evento" placeholder="Ex.: Poda, transplante, pragas, etc." required>
+                        </label>
+                    </div>
+
+                    <label>
+                        Descrição do evento
+                        <textarea name="descricao_evento" rows="3" placeholder="Ex.: Planta em estado de saúde, necessita de cuidados especiais."></textarea>
+                    </label>
+
+                    <p class="retorno-form" id="retornoEventoSuino" aria-live="polite"></p>
+
+                    <div class="acoes-compra">
+                        <button type="reset" class="btn-fantasma">Limpar</button>
+                        <button type="submit" class="btn-acao-primaria">Registrar evento</button>
+                    </div>
+                </form>
+            </article>
+        </section>
+
+        <section class="compras-grid compras-grid-piscicultura">
+            <article class="painel-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Rotina prioritária</p>
+                        <h3>Manejo e acabamento</h3>
+                    </div><span class="tag-secao">Ornamentais</span>
+                </div>
+                <div class="lista-checks-piscicultura" id="listaChecklistUnidade"></div>
+            </article>
+            <article class="painel-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Sanidade e alertas</p>
+                        <h3>Leitura rápida da unidade</h3>
+                    </div><span class="tag-secao">Hoje</span>
+                </div>
+                <div class="metricas-agua" id="listaIndicadoresUnidade"></div>
+            </article>
+        </section>
+        <section class="painel-compras filtros-vendas-bloco">
+            <div class="cabecalho-secao">
+                <div>
+                    <p class="sobrelinha-secao">Registro operacional</p>
+                    <h3>Alterações recentes</h3>
+                </div><span class="tag-secao" id="tagAlteracoesUnidade">0 ocorrências</span>
+            </div>
+            <ul class="lista-resumo-piscicultura" id="listaEventosUnidade"></ul>
+        </section>
+        <section class="tabela-gestao-vendas">
+            <article class="painel-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Acompanhamento</p>
+                        <h3 id="tituloTabelaUnidade">Situação das bancadas</h3>
+                    </div><span class="tag-secao">Monitoramento</span>
+                </div>
+                <div class="caixa-tabela">
+                    <table class="tabela-compra">
+                        <thead id="cabecalhoTabelaUnidade"></thead>
+                        <tbody id="corpoTabelaUnidade"></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+    <button class="btn-cynx" id="btnAbrirCynx" type="button" aria-label="Abrir assistente Cynx">
+        <div class="robo" aria-hidden="true">
+            <div class="chapeu">
+                <div class="aba"></div>
+                <div class="topo"></div>
+            </div>
+            <div class="cabeca">
+                <div class="visor">
+                    <div class="olhos">
+                        <div class="olho"></div>
+                        <div class="olho"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </button>
+    <script src="index.js"></script>
+</body>
+
+</html>

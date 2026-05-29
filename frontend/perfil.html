@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <title>Perfil</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- MENU LATERAL -->
+    <header class="menu-lateral">
+        <div class="conteiner">
+            <div class="area-logo">
+                <img src="imagens/patativa.png" alt="logo CampoSync" class="logo">
+                <h1>CampoSync</h1>
+            </div>
+            <nav class="barra-nav">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="areas_produtivas.html">Áreas Produtivas</a></li>
+                    <li><a href="gestao_vendas.html">Gestão de Vendas</a></li>
+                    <li><a href="gestao_compras.html">Gestão de Compras</a></li>
+                    <li><a href="suprimentos.html">Suprimentos</a></li>
+                    <li><a href="consumos.html">Consumos</a></li>
+                    <li><a href="ferramentas.html">Ferramentas</a></li>
+                    <li><a href="historico.html">Histórico</a></li>
+                    <li><a class="ativo" href="perfil.html">Perfil</a></li>
+                    <li><a class="acessibilidade" href="acessibilidade.html">Acessibilidade</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main>
+
+        <section class="corpo-left">
+            <div class="menu-topo">
+                <h2>Perfil</h2>
+                <div>
+                    <ul>
+                        <li><button class="btn-cynx" id="btnAbrirCynx" type="button" aria-label="Abrir assistente Cynx">
+                                <div class="robo" aria-hidden="true">
+                                    <div class="chapeu">
+                                        <div class="aba"></div>
+                                        <div class="topo"></div>
+                                    </div>
+                                    <div class="cabeca">
+                                        <div class="visor">
+                                            <div class="olhos">
+                                                <div class="olho"></div>
+                                                <div class="olho"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button></li>
+                        <li class="grupo-notif">
+                            <button class="btn-sino" id="btnSino" aria-label="Notificações" aria-expanded="false">
+                                <!-- ícone SVG do sino -->
+                            </button>
+                            <span class="badge" id="badge" hidden>0</span>
+
+                            <div class="painel-alertas" id="painelAlertas">
+                                <div class="cabecalho-painel">
+                                    <span>Alertas recentes</span>
+                                    <button type="button" id="btnMarcarTudoLido">Marcar todos como lidos</button>
+                                </div>
+                                <div id="listaNotif"></div>
+                            </div>
+                        </li>
+                        <li class="grupo-tema">
+                            <span id="rotuloTema"></span>
+                            <button class="btn-tema" id="btnAlternarTema" aria-label="Alternar modo escuro">
+                                <div class="pino-tema"></div>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="sobreposicao" hidden></div>
+            <section id="modal-cynx" aria-label="Assistente virtual Cynx" aria-hidden="true">
+                <header class="cabecalho-cynx">
+                    <div class="bloco-info">
+                        <div class="avatar" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div>
+                            <strong>Cynx</strong>
+                            <span>Assistente de apoio do CampoSync</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-icone" id="btnFecharCynx" aria-label="Fechar assistente">
+                        <span>&times;</span>
+                    </button>
+                </header>
+
+                <div class="status-cynx">
+                    <div>
+                        <strong>Status</strong>
+                        <span id="textoStatus">Pronto para ajudar</span>
+                    </div>
+                    <button type="button" class="btn-secundario" id="btnResetarCynx">Nova conversa</button>
+                </div>
+
+                <div id="batePapoCynx" aria-live="polite"></div>
+
+                <section class="atalhos" aria-label="Atalhos rápidos">
+                    <button type="button" data-atalho="estoque">Estoque</button>
+                    <button type="button" data-atalho="alertas">Alertas</button>
+                    <button type="button" data-atalho="historico">Histórico</button>
+                    <button type="button" data-atalho="relatorios">Relatórios</button>
+                </section>
+
+                <form class="entrada-cynx" id="formCynx">
+                    <label class="apenas-leitor" for="entradaMsg">Digite sua mensagem</label>
+                    <input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
+                        placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios">
+                    <button type="submit" aria-label="Enviar mensagem">Enviar</button>
+                    <button type="button" id="btnMicrofone" aria-pressed="false">Falar</button>
+                    <button type="button" id="btnAlternarVoz" aria-pressed="true">Voz ligada</button>
+                </form>
+            </section>
+
+            <!-- PERFIL -->
+            <div class="perfil-box">
+                <div class="perfil-avatar">
+                    <img id="perfilAvatarImage" src="imagens/patativa.png" alt="Avatar do usuario">
+                    <label class="perfil-avatar-camera" for="perfilAvatarInput" title="Alterar foto de perfil" aria-label="Alterar foto de perfil">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 4.5 7.8 6H5.5A2.5 2.5 0 0 0 3 8.5v8A2.5 2.5 0 0 0 5.5 19h13a2.5 2.5 0 0 0 2.5-2.5v-8A2.5 2.5 0 0 0 18.5 6h-2.3L15 4.5H9Zm3 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-1.8a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" />
+                        </svg>
+                    </label>
+                    <input id="perfilAvatarInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+                </div>
+                <div class="perfil-resumo">
+                    <span class="perfil-etiqueta">Conta</span>
+                    <h2 id="perfilNome">Produtor CampoSync</h2>
+                    <p class="perfil-subtitulo" id="perfilCargo">Informações principais do usuário</p>
+                    <p class="perfil-status" id="perfilStatus" aria-live="polite"></p>
+                    <button type="button" class="perfil-acao" onclick="logoutUser()">Sair</button>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO PRINCIPAL -->
+            <div class="conteudo-perfil">
+
+                <!-- INFORMAÇÕES -->
+                <div class="card-perfil">
+                    <h3>Informações Pessoais</h3>
+                    <div class="lista-info-perfil">
+                        <p><strong>Email</strong><span id="perfilEmail">operacao@camposync.app</span></p>
+                        <p><strong>Data</strong><span id="perfilData">22/04/2026</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <script src="index.js"></script>
+
+</body>
+
+</html>

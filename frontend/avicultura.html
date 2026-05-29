@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Avicultura</title>
+</head>
+
+<body class="pagina-unidade-produtiva">
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+    <header class="header-unidades">
+        <div class="acoes-topo">
+            <ul class="lista-topo">
+                <li><a class="header-unidades__voltar" href="areas_produtivas.html"
+                        aria-label="Voltar para áreas produtivas"><img
+                            src="https://img.icons8.com/?size=100&id=jqVLTIkbz7hy&format=png&color=009D03"
+                            alt="Voltar para a home" width="30"></a></li>
+
+                <li class="grupo-tema">
+                    <span id="rotuloTema"></span>
+                    <button class="btn-tema" id="btnAlternarTema" aria-label="Alternar modo escuro">
+                        <div class="pino-tema"></div>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="header-unidades__titulo">
+            <span class="header-unidades__tag">Unidade produtiva</span>
+            <h2>Avicultura</h2>
+        </div>
+        
+        <div id="sobreposicao" hidden></div>
+        <section id="modal-cynx" role="dialog" aria-modal="true" aria-label="Assistente virtual Cynx" aria-hidden="true">
+            <header class="cabecalho-cynx">
+                <div class="bloco-info">
+                    <div class="avatar" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div>
+                        <strong>Cynx</strong>
+                        <span>Assistente de apoio do CampoSync</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-icone" id="btnFecharCynx" aria-label="Fechar assistente">
+                    <span>&times;</span>
+                </button>
+            </header>
+            <div class="status-cynx">
+                <div>
+                    <strong>Status</strong>
+                    <span id="textoStatus">Pronto para ajudar</span>
+                </div>
+                <button type="button" class="btn-secundario" id="btnResetarCynx">Nova conversa</button>
+            </div>
+            <div id="batePapoCynx" aria-live="polite"></div>
+            <section class="atalhos" aria-label="Atalhos rápidos">
+                <button type="button" data-atalho="estoque">Estoque</button>
+                <button type="button" data-atalho="alertas">Alertas</button>
+                <button type="button" data-atalho="historico">Histórico</button>
+                <button type="button" data-atalho="relatorios">Relatórios</button>
+            </section>
+            <form class="entrada-cynx" id="formCynx">
+                <label class="apenas-leitor" for="entradaMsg">Digite sua mensagem</label>
+                <input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
+                    placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios">
+                <button type="submit" aria-label="Enviar mensagem">Enviar</button>
+                <button type="button" id="btnMicrofone" aria-pressed="false">Falar</button>
+                <button type="button" id="btnAlternarVoz" aria-pressed="true">Voz ligada</button>
+            </form>
+        </section>
+    </header>
+
+    <main id="conteudo-principal" class="pagina-piscicultura" data-unidade="avicultura" tabindex="-1">
+        <section class="hero-piscicultura">
+            <div class="hero-piscicultura__conteudo">
+                <img class="hero-piscicultura__imagem" id="imagemUnidadeProdutiva"
+                    src="imagens/Avicultura.jpg"
+                    alt="Galpão de avicultura com aves em manejo">
+            </div>
+            <aside class="hero-piscicultura__painel" aria-label="Resumo operacional do dia">
+                <p class="sobrelinha-secao">Operação do dia</p>
+                <ul class="lista-resumo-piscicultura" id="listaResumoUnidade"></ul>
+            </aside>
+        </section>
+        <section class="cards-info cards-info-unidade cards-info-unidade--linha" aria-label="Resumo da avicultura">
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">01</div>
+                <h3 id="tituloCardEstrutura">Galpões ativos</h3>
+                <p id="valorCardEstrutura">0</p><span id="descricaoCardEstrutura"></span>
+            </div>
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">02</div>
+                <h3 id="tituloCardAnimais">Total de aves</h3>
+                <p id="valorCardAnimais">0</p><span id="descricaoCardAnimais"></span>
+            </div>
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">03</div>
+                <h3>Ração disponível</h3>
+                <p id="valorCardRacao">0 kg</p><span id="descricaoCardRacao"></span>
+            </div>
+            <div class="card-info">
+                <div class="icone-card" aria-hidden="true">04</div>
+                <h3>Vacinação</h3>
+                <p id="valorCardVacinacao">-</p><span id="descricaoCardVacinacao"></span>
+            </div>
+        </section>
+
+        <section class="painel-compras grafico-zootecnico" aria-label="Resumo zootécnico">
+            <div class="cabecalho-secao">
+                <div>
+                    <p class="sobrelinha-secao">Resumo zootécnico</p>
+                    <h3>Ciclo de vida do rebanho</h3>
+                </div>
+                <span class="tag-secao" id="tagGraficoZootecnico">0 registros</span>
+            </div>
+
+            <div class="grafico-zootecnico__conteudo">
+                <div class="grafico-zootecnico__canvas">
+                    <canvas id="graficoResumoZootecnico" aria-label="Gráfico de barras horizontais do resumo zootécnico"></canvas>
+                </div>
+                <div class="grafico-zootecnico__legenda" id="legendaGraficoZootecnico">
+                    <article class="grafico-zootecnico__item">
+                        <strong id="valorAnimaisVivos">0</strong>
+                        <span id="descricaoAnimaisVivos">Monitoramento do plantel ativo.</span>
+                    </article>
+                    <article class="grafico-zootecnico__item">
+                        <strong id="valorNascimentos">0</strong>
+                        <span id="descricaoNascimentos">Animais registrados desde o nascimento.</span>
+                    </article>
+                    <article class="grafico-zootecnico__item">
+                        <strong id="valorMortes">0</strong>
+                        <span id="descricaoMortes">Óbitos acumulados no histórico.</span>
+                    </article>
+                    <article class="grafico-zootecnico__item">
+                        <strong id="valorTaxaMortalidade">0%</strong>
+                        <span id="descricaoTaxaMortalidade">Percentual sobre os animais cadastrados.</span>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="compras-grid compras-grid-piscicultura compras-grid-ciclo-vida">
+            <article class="painel-compras painel-form-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Ciclo de vida</p>
+                        <h3>Cadastrar ave</h3>
+                    </div>
+                    <span class="tag-secao">Nascimento e identificação</span>
+                </div>
+
+                <form class="form-compra" id="formAnimalSuino">
+                    <div class="grade-campos">
+                        <label>
+                            Código do ave
+                            <input type="text" name="codigo_animal" placeholder="Ex.: SU-001" required>
+                        </label>
+
+                        <label>
+                            Data de nascimento
+                            <input type="date" name="data_nascimento" required>
+                        </label>
+
+                        <label>
+                            Código da matiz
+                            <input type="text" name="codigo_mae" placeholder="Ex.: MAE-014">
+                        </label>
+
+                        <label>
+                            Código do reprodutor
+                            <input type="text" name="codigo_pai" placeholder="Ex.: PAI-007">
+                        </label>
+
+                        <label>
+                            Raça
+                            <input type="text" name="raca" placeholder="Ex.: Legorne" required>
+                        </label>
+
+                        <label>
+                            Sexo
+                            <select name="sexo" required>
+                                <option value="">Selecione</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Fêmea">Fêmea</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Fase atual
+                            <input type="text" name="fase_atual" placeholder="Ex.: incubação, creche, terminação" required>
+                        </label>
+
+                        <label>
+                            Galpão
+                            <input type="text" name="baia" placeholder="Ex.: Galpão 03" required>
+                        </label>
+                    </div>
+
+                    <label>
+                        Observações
+                        <textarea name="observacoes" rows="3" placeholder="Ex.: Ave saudável, necessita de cuidados especiais."></textarea>
+                    </label>
+
+                    <p class="retorno-form" id="retornoAnimalSuino" aria-live="polite"></p>
+
+                    <div class="acoes-compra">
+                        <button type="reset" class="btn-fantasma">Limpar</button>
+                        <button type="submit" class="btn-acao-primaria">Cadastrar animal</button>
+                    </div>
+                </form>
+            </article>
+
+            <article class="painel-compras painel-form-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Histórico sanitário e produtivo</p>
+                        <h3>Registrar evento</h3>
+                    </div>
+                    <span class="tag-secao">Da vida ao descarte</span>
+                </div>
+
+                <form class="form-compra" id="formEventoSuino">
+                    <div class="grade-campos">
+                        <label>
+                            Ave
+                            <select name="animal_id" id="eventoAnimalSelect" required>
+                                <option value="">Selecione a ave</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Data do evento
+                            <input type="date" name="data_evento" required>
+                        </label>
+
+                        <label>
+                            Tipo de evento
+                           <input type="text" name="tipo_evento" placeholder="Ex.: vacinação, transferência" required> 
+                        </label>
+
+                        <label>
+                            Fase de vida
+                            <input type="text" name="fase_evento" placeholder="Ex.: creche, terminação">
+                        </label>
+                    </div>
+
+                    <label>
+                        Descrição do evento
+                        <textarea name="descricao_evento" rows="3" placeholder="Ex.: transferência para galpão 06 após desmame."></textarea>
+                    </label>
+
+                    <p class="retorno-form" id="retornoEventoSuino" aria-live="polite"></p>
+
+                    <div class="acoes-compra">
+                        <button type="reset" class="btn-fantasma">Limpar</button>
+                        <button type="submit" class="btn-acao-primaria">Registrar evento</button>
+                    </div>
+                </form>
+            </article>
+        </section>
+
+        <section class="compras-grid compras-grid-piscicultura compras-grid-ciclo-vida">
+            <article class="painel-compras painel-form-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Monitoramento de óbitos</p>
+                        <h3>Registrar morte e causa</h3>
+                    </div>
+                    <span class="tag-secao">Rastreabilidade sanitária</span>
+                </div>
+
+                <form class="form-compra" id="formObitoSuino">
+                    <div class="grade-campos">
+                        <label>
+                            Ave
+                            <select name="animal_id_obito" id="obitoAnimalSelect" required>
+                                <option value="">Selecione a ave </option>
+                            </select>
+                        </label>
+
+                        <label>
+                            Data do óbito
+                            <input type="date" name="data_obito" required>
+                        </label>
+
+                        <label>
+                            Causa
+                            <input type="text" name="causa_obito" placeholder="Ex.: pneumonia, esmagamento, diarreia neonatal." required>
+                        </label>
+
+                        <label>
+                            Categoria da causa
+                            <select name="categoria_causa" required>
+                                <option value="">Selecione</option>
+                                <option value="Sanitária">Sanitária</option>
+                                <option value="Manejo">Manejo</option>
+                                <option value="Nutricional">Nutricional</option>
+                                <option value="Acidente">Acidente</option>
+                                <option value="Reprodutiva">Reprodutiva</option>
+                                <option value="Abate">Abate</option>
+                                <option value="Desconhecida">Desconhecida</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <label>
+                        Observações do óbito
+                        <textarea name="observacoes_obito" rows="3" placeholder="Ex.: encontrado em decúbito, necropsia pendente, medidas corretivas iniciadas."></textarea>
+                    </label>
+
+                    <p class="retorno-form" id="retornoObitoSuino" aria-live="polite"></p>
+
+                    <div class="acoes-compra">
+                        <button type="reset" class="btn-fantasma">Limpar</button>
+                        <button type="submit" class="btn-acao-primaria">Registrar óbito</button>
+                    </div>
+                </form>
+            </article>
+
+            <article class="painel-compras" aria-label="Resumo de causas de morte">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Causas monitoradas</p>
+                        <h3>Distribuição de mortes</h3>
+                    </div>
+                    <span class="tag-secao" id="tagTotalObitosPainel">0 óbitos</span>
+                </div>
+
+                <div class="metricas-agua" id="listaCausasObito"></div>
+            </article>
+        </section>
+
+        <section class="painel-compras filtros-vendas-bloco">
+            <div class="cabecalho-secao">
+                <div>
+                    <p class="sobrelinha-secao">Registro operacional</p>
+                    <h3>Linha do tempo do rebanho</h3>
+                </div>
+                <span class="tag-secao" id="tagAlteracoesUnidade">0 ocorrências</span>
+            </div>
+
+            <ul class="lista-resumo-piscicultura" id="listaEventosUnidade"></ul>
+        </section>
+
+        <section class="compras-grid compras-grid-piscicultura compras-grid-ciclo-vida">
+            <article class="painel-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Acompanhamento individual</p>
+                        <h3>Animais monitorados</h3>
+                    </div>
+                    <span class="tag-secao" id="tagAnimaisMonitorados">0 animais</span>
+                </div>
+
+                <div class="caixa-tabela">
+                    <table class="tabela-compra">
+                        <thead>
+                            <tr>
+                                <th>Animal</th>
+                                <th>Nascimento</th>
+                                <th>Fase</th>
+                                <th>Baia</th>
+                                <th>Status</th>
+                                <th>Último evento</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaAnimaisSuinos"></tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="painel-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Ocorrências críticas</p>
+                        <h3>Mortes recentes</h3>
+                    </div>
+                    <span class="tag-secao" id="tagMortesRecentes">0 registros</span>
+                </div>
+
+                <div class="caixa-tabela">
+                    <table class="tabela-compra">
+                        <thead>
+                            <tr>
+                                <th>Animal</th>
+                                <th>Data</th>
+                                <th>Causa</th>
+                                <th>Categoria</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaObitosSuinos"></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+
+        <section class="tabela-gestao-vendas">
+            <article class="painel-compras">
+                <div class="cabecalho-secao">
+                    <div>
+                        <p class="sobrelinha-secao">Acompanhamento</p>
+                        <h3 id="tituloTabelaUnidade">Situação das baias</h3>
+                    </div>
+                    <span class="tag-secao">Monitoramento</span>
+                </div>
+
+                <div class="caixa-tabela">
+                    <table class="tabela-compra">
+                        <thead id="cabecalhoTabelaUnidade"></thead>
+                        <tbody id="corpoTabelaUnidade"></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+    <button class="btn-cynx" id="btnAbrirCynx" type="button" aria-label="Abrir assistente Cynx">
+        <div class="robo" aria-hidden="true">
+            <div class="chapeu">
+                <div class="aba"></div>
+                <div class="topo"></div>
+            </div>
+            <div class="cabeca">
+                <div class="visor">
+                    <div class="olhos">
+                        <div class="olho"></div>
+                        <div class="olho"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </button>
+    <script src="index.js"></script>
+</body>
+
+</html>

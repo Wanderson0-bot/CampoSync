@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
+    <link rel="stylesheet" href="style.css">
+    <title>CampoSync | Áreas Produtivas</title>
+</head>
+
+<body>
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+    <header class="menu-lateral">
+        <div class="conteiner">
+            <div class="area-logo">
+                <img src="imagens/patativa.png" alt="logo CampoSync" class="logo">
+                <h1>CampoSync</h1>
+            </div>
+            <nav class="barra-nav" aria-label="Menu principal">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a class="ativo" aria-current="page" href="areas_produtivas.html">Áreas Produtivas</a></li>
+                    <li><a href="gestao_vendas.html">Gestão de Vendas</a></li>
+                    <li><a href="gestao_compras.html">Gestão de Compras</a></li>
+                    <li><a href="suprimentos.html">Suprimentos</a></li>
+                    <li><a href="consumos.html">Consumos</a></li>
+                    <li><a href="ferramentas.html">Ferramentas</a></li>
+                    <li><a href="historico.html">Histórico</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a class="acessibilidade" href="acessibilidade.html">Acessibilidade</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="conteudo-principal" tabindex="-1">
+        <section class="corpo-left">
+            <div class="menu-topo">
+                <h2>Áreas Produtivas</h2>
+                <div class="acoes-topo">
+                    <ul class="lista-topo">
+                        <li><button class="btn-cynx" id="btnAbrirCynx" type="button" aria-label="Abrir assistente Cynx">
+                                <div class="robo" aria-hidden="true">
+                                    <div class="chapeu">
+                                        <div class="aba"></div>
+                                        <div class="topo"></div>
+                                    </div>
+                                    <div class="cabeca">
+                                        <div class="visor">
+                                            <div class="olhos">
+                                                <div class="olho"></div>
+                                                <div class="olho"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </button></li>
+                        <li class="grupo-notif">
+                            <button class="btn-sino" id="btnSino" aria-label="Notificações" aria-expanded="false">
+                                <!-- ícone SVG do sino -->
+                            </button>
+                            <span class="badge" id="badge" hidden>0</span>
+
+                            <div class="painel-alertas" id="painelAlertas" role="region" aria-label="Alertas recentes">
+                                <div class="cabecalho-painel">
+                                    <span>Alertas recentes</span>
+                                    <button type="button" id="btnMarcarTudoLido">Marcar todos como lidos</button>
+                                </div>
+                                <div id="listaNotif"></div>
+                            </div>
+                        </li>
+                        <li class="grupo-tema">
+                            <span id="rotuloTema"></span>
+                            <button class="btn-tema" id="btnAlternarTema" aria-label="Alternar modo escuro">
+                                <div class="pino-tema"></div>
+                            </button>
+                        </li>
+                        <li><button class="btn-adicionar" id="btnCadUnd" type="button" aria-label="Cadastrar unidade produtiva" onclick="window.abrirCadastroUnidadeProdutiva?.()"><img
+                                    src="https://img.icons8.com/?size=100&id=84991&format=png&color=FFFFFF"
+                                    alt=""></button></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="sobreposicao" hidden></div>
+            <section id="modal-cynx" role="dialog" aria-modal="true" aria-label="Assistente virtual Cynx" aria-hidden="true">
+                <header class="cabecalho-cynx">
+                    <div class="bloco-info">
+                        <div class="avatar" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div>
+                            <strong>Cynx</strong>
+                            <span>Assistente de apoio do CampoSync</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-icone" id="btnFecharCynx" aria-label="Fechar assistente">
+                        <span>&times;</span>
+                    </button>
+                </header>
+
+                <div class="status-cynx">
+                    <div>
+                        <strong>Status</strong>
+                        <span id="textoStatus">Pronto para ajudar</span>
+                    </div>
+                    <button type="button" class="btn-secundario" id="btnResetarCynx">Nova conversa</button>
+                </div>
+
+                <div id="batePapoCynx" aria-live="polite"></div>
+
+                <section class="atalhos" aria-label="Atalhos rápidos">
+                    <button type="button" data-atalho="estoque">Estoque</button>
+                    <button type="button" data-atalho="alertas">Alertas</button>
+                    <button type="button" data-atalho="historico">Histórico</button>
+                    <button type="button" data-atalho="relatorios">Relatórios</button>
+                </section>
+
+                <form class="entrada-cynx" id="formCynx">
+                    <label class="apenas-leitor" for="entradaMsg">Digite sua mensagem</label>
+                    <input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
+                        placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios">
+                    <button type="submit" aria-label="Enviar mensagem">Enviar</button>
+                    <button type="button" id="btnMicrofone" aria-pressed="false">Falar</button>
+                    <button type="button" id="btnAlternarVoz" aria-pressed="true">Voz ligada</button>
+                </form>
+            </section>
+            <div class="sobreposicao-und" id="sobreposicaoUnidade" hidden>
+                <section class="modal-und" id="modalUnidade" role="dialog" aria-modal="true" aria-labelledby="tituloModalUnidade" aria-hidden="true">
+                    <header class="cabecalho-modal-und">
+                        <div>
+                            <p class="sobrelinha-modal-und">Nova unidade</p>
+                            <h3 id="tituloModalUnidade">Cadastrar unidade produtiva</h3>
+                        </div>
+                        <button type="button" class="btn-fechar-und" id="btnFecharModalUnidade" onclick="window.fecharCadastroUnidadeProdutiva?.()"
+                            aria-label="Fechar cadastro de unidade">&times;</button>
+                    </header>
+
+                    <form id="formUnidade" class="form-und">
+                        <label for="nomeUnidade">Nome da unidade</label>
+                        <input type="text" id="nomeUnidade" name="nomeUnidade" placeholder="Ex.: Bovinocultura" required>
+                        <label for="categoriaUnidade">Categoria da unidade</label>
+                        <select id="categoriaUnidade" name="categoriaUnidade" required>
+                            <option value="">Selecione a categoria</option>
+                            <option value="animal">Animal</option>
+                            <option value="planta">Flora</option>
+                        </select>
+
+                        <label for="latitudeUnidade">Latitude da unidade</label>
+                        <input type="number" step="any" id="latitudeUnidade" name="latitudeUnidade" placeholder="Ex.: 4.376511">
+
+                        <label for="longitudeUnidade">Longitude da unidade</label>
+                        <input type="number" step="any" id="longitudeUnidade" name="longitudeUnidade" placeholder="Ex.: -39.456387">
+
+                        <label for="imagemUnidade">Imagem da unidade</label>
+                        <input type="file" id="imagemUnidade" name="imagemUnidade" accept="image/*">
+
+                        <img id="prevImagem" alt="Pré-visualização da imagem da unidade" style="display:none; max-width:100%; margin-top:10px; border-radius:8px;">
+                        <p class="mensagem-form-und" id="mensagemFormUnidade" aria-live="polite"></p>
+                        <div class="acoes-form-und">
+                            <button type="button" class="btn-secundario-und" id="btnCancelarModalUnidade" onclick="window.fecharCadastroUnidadeProdutiva?.()">Cancelar</button>
+                            <button type="submit" class="btn-primario-und">Cadastrar</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <div class="mapa" id="mapa">
+
+            </div>
+
+            <section class="cards cards-areas-produtivas" aria-label="Lista de áreas produtivas">
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Suinocultura.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Suinocultura</h3>
+                        <a class="link-acao-card" href="suinocultura.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Avicultura.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Avicultura</h3>
+                        <a class="link-acao-card" href="avicultura.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Piscicultura.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Piscicultura</h3>
+                        <a class="link-acao-card" href="piscicultura.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/horticultura.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Horticultura</h3>
+                        <a class="link-acao-card" href="horticultura.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Fruticultura.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Fruticultura</h3>
+                        <a class="link-acao-card" href="fruticultura.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Agrofloresta.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Agrofloresta</h3>
+                        <a class="link-acao-card" href="agrofloresta.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Plantas Forrageiras.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Plantas Forrageiras</h3>
+                        <a class="link-acao-card" href="plantas-forrageiras.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Cultivo-de-Siqueiro.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Cultivos de Sequeiro</h3>
+                        <a class="link-acao-card" href="cultivos-de-sequeiro.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Plantas-Ornamentais.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Plantas Ornamentais</h3>
+                        <a class="link-acao-card" href="plantas-ornamentais.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/Plantas-medicinais.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Plantas Medicinais</h3>
+                        <a class="link-acao-card" href="plantas-medicinais.html">Entrar</a>
+                    </div>
+                </article>
+                <article class="card card-areas-produtivas">
+                    <div class="menu-card-area">
+                        <button class="btn-menu-card" type="button" aria-label="Mais opções da unidade"></button>
+                        <div class="acoes-card-area">
+                            <button class="btn-editar-und" type="button">Editar</button>
+                            <button class="btn-remover-und" type="button">Remover</button>
+                        </div>
+                    </div>
+                    <img class="midia-card" src="imagens/mudas.jpg" alt="">
+                    <div class="conteudo-card">
+                        <h3 class="titulo-card">Viveiros de Mudas</h3>
+                        <a class="link-acao-card" href="viveiros-de-mudas.html">Entrar</a>
+                    </div>
+                </article>
+            </section>
+        </section>
+
+
+    </main>
+    <script>
+        window.abrirCadastroUnidadeProdutiva = function () {
+            const sobreposicao = document.getElementById('sobreposicaoUnidade');
+            const modal = document.getElementById('modalUnidade');
+            const form = document.getElementById('formUnidade');
+            const nome = document.getElementById('nomeUnidade');
+            const previa = document.getElementById('prevImagem');
+            const mensagem = document.getElementById('mensagemFormUnidade');
+            const titulo = document.getElementById('tituloModalUnidade');
+            const sobrelinha = document.querySelector('.sobrelinha-modal-und');
+            const botaoSubmit = form?.querySelector('.btn-primario-und');
+
+            if (!sobreposicao || !modal || !nome) return;
+
+            form?.reset();
+            if (mensagem) {
+                mensagem.textContent = '';
+                mensagem.dataset.state = '';
+            }
+            if (titulo) titulo.textContent = 'Cadastrar unidade produtiva';
+            if (sobrelinha) sobrelinha.textContent = 'Nova unidade';
+            if (botaoSubmit) botaoSubmit.textContent = 'Cadastrar';
+            if (previa) {
+                previa.style.display = 'none';
+                previa.removeAttribute('src');
+            }
+
+            sobreposicao.hidden = false;
+            modal.setAttribute('aria-hidden', 'false');
+            nome.focus();
+        };
+
+        window.fecharCadastroUnidadeProdutiva = function () {
+            const sobreposicao = document.getElementById('sobreposicaoUnidade');
+            const modal = document.getElementById('modalUnidade');
+            const form = document.getElementById('formUnidade');
+            const previa = document.getElementById('prevImagem');
+            const mensagem = document.getElementById('mensagemFormUnidade');
+
+            if (!sobreposicao || !modal) return;
+
+            sobreposicao.hidden = true;
+            modal.setAttribute('aria-hidden', 'true');
+            form?.reset();
+            if (mensagem) {
+                mensagem.textContent = '';
+                mensagem.dataset.state = '';
+            }
+            if (previa) {
+                previa.style.display = 'none';
+                previa.removeAttribute('src');
+            }
+        };
+
+        document.addEventListener('click', function (event) {
+            const botaoEditar = event.target.closest?.('.btn-editar-und');
+            if (botaoEditar) {
+                const card = botaoEditar.closest('.card');
+                if (card && typeof window.abrirEdicaoUnidadeProdutiva === 'function') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    window.abrirEdicaoUnidadeProdutiva(card);
+                    return;
+                }
+            }
+
+            const sobreposicao = document.getElementById('sobreposicaoUnidade');
+            if (sobreposicao && event.target === sobreposicao) {
+                window.fecharCadastroUnidadeProdutiva?.();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                window.fecharCadastroUnidadeProdutiva?.();
+            }
+        });
+    </script>
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+    <script src="index.js"></script>
+</body>
+
+</html>

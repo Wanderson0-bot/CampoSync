@@ -1,0 +1,35 @@
+// Estes dados iniciais agora são vazios para garantir que todas as informações venham do banco.
+export const defaultData = {
+  users: [],
+  notifications: [],
+  auditLogs: [],
+  purchases: [],
+  consumptions: [],
+  sales: [],
+  supplies: [],
+  materials: [],
+  actions: [],
+  dailyUnitActivities: [],
+  customUnits: [],
+  locations: [],
+  lifecycleAnimals: [],
+  lifecycleEvents: [],
+  lifecycleDeaths: [],
+  counters: {
+    users: 1,
+    notifications: 1,
+    auditLogs: 1,
+    purchases: 1,
+    consumptions: 1,
+    sales: 1,
+    supplies: 1,
+    materials: 1,
+    actions: 1,
+    dailyUnitActivities: 1,
+    customUnits: 1,
+    locations: 1,
+    lifecycleAnimals: 1,
+    lifecycleEvents: 1,
+    lifecycleDeaths: 1
+  }
+};
