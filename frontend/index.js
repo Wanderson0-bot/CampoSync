@@ -1237,15 +1237,14 @@ function getRuntimeConfig() {
   const savedApiBaseUrl = safeLocalStorageGet(STORAGE_KEYS.apiBaseUrl);
   const pageOrigin = window.location.origin;
   const isHttpPage = /^https?:$/i.test(window.location.protocol);
-  const backendOrigin = isHttpPage
-    ? `${window.location.protocol}//${window.location.hostname}:5000`
-    : "http://localhost:5000";
+  const backendOrigin =
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
   const isSeparateFrontendServer = isHttpPage && window.location.port !== "5000";
   const defaultApiBaseUrl = isSeparateFrontendServer
     ? `${backendOrigin}/api`
     : isHttpPage && pageOrigin
       ? `${pageOrigin}/api`
-      : "http://localhost:5000/api";
+      : `${import.meta.env.VITE_API_URL}/api`;
   const apiBaseUrl =
     urlApiBaseUrl ||
     globalConfig.apiBaseUrl ||
