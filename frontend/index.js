@@ -1085,15 +1085,6 @@ function resolveProfileAvatar(user = {}) {
   return avatarUrl || DEFAULT_PROFILE_AVATAR;
 }
 
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error("Nao foi possivel ler a imagem selecionada."));
-    reader.readAsDataURL(file);
-  });
-}
-
 function clearLegacyLocalData() {
   const exactKeys = [
     STORAGE_KEYS.notifications,
