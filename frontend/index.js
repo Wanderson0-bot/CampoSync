@@ -1226,16 +1226,8 @@ function getRuntimeConfig() {
   const urlConfig = new URLSearchParams(window.location.search);
   const urlApiBaseUrl = urlConfig.get("apiBaseUrl") || urlConfig.get("api");
   const savedApiBaseUrl = safeLocalStorageGet(STORAGE_KEYS.apiBaseUrl);
-  const pageOrigin = window.location.origin;
-  const isHttpPage = /^https?:$/i.test(window.location.protocol);
-  const backendOrigin =
-    import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const isSeparateFrontendServer = isHttpPage && window.location.port !== "5000";
-  const defaultApiBaseUrl = isSeparateFrontendServer
-    ? `${backendOrigin}/api`
-    : isHttpPage && pageOrigin
-      ? `${pageOrigin}/api`
-      : `${import.meta.env.VITE_API_URL}/api`;
+  const API_URL = "https://camposync.onrender.com";
+  const defaultApiBaseUrl = `${API_URL}/api`;
   const apiBaseUrl =
     urlApiBaseUrl ||
     globalConfig.apiBaseUrl ||
