@@ -1225,14 +1225,12 @@ function getRuntimeConfig() {
   const bodyConfig = document.body?.dataset || {};
   const urlConfig = new URLSearchParams(window.location.search);
   const urlApiBaseUrl = urlConfig.get("apiBaseUrl") || urlConfig.get("api");
-  const savedApiBaseUrl = safeLocalStorageGet(STORAGE_KEYS.apiBaseUrl);
   const API_URL = "https://camposync.onrender.com";
   const defaultApiBaseUrl = `${API_URL}/api`;
   const apiBaseUrl =
     urlApiBaseUrl ||
     globalConfig.apiBaseUrl ||
     bodyConfig.apiBaseUrl ||
-    savedApiBaseUrl ||
     defaultApiBaseUrl;
   const normalizedApiBaseUrl = normalizeApiBaseUrl(apiBaseUrl);
   const defaultGoogleAuthUrl = `${normalizedApiBaseUrl.replace(/\/api$/i, "")}/auth/google`;
@@ -1244,7 +1242,7 @@ function getRuntimeConfig() {
   return {
     apiBaseUrl: normalizedApiBaseUrl,
     useBackend: true,
-    requestTimeoutMs: Number(globalConfig.requestTimeoutMs || 12000),
+    requestTimeoutMs: Number(globalConfig.requestTimeoutMs || 45000),
     authGoogleUrl: globalConfig.authGoogleUrl || defaultGoogleAuthUrl,
     debug: globalConfig.debug === true || bodyConfig.debug === "true"
   };
@@ -1331,6 +1329,12 @@ async function apiRequest(path, options = {}) {
     }
 
     return payload;
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("A API demorou para responder. Tente novamente em alguns segundos.");
+    }
+
+    throw error;
   } finally {
     window.clearTimeout(timeoutId);
   }
