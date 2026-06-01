@@ -107,24 +107,24 @@
 
                 <div id="batePapoCynx" aria-live="polite"></div>
 
-                <section class="atalhos" aria-label="Atalhos rapidos">
+                <section class="atalhos" aria-label="Atalhos rápidos">
                     <button type="button" data-atalho="estoque">Estoque</button>
                     <button type="button" data-atalho="alertas">Alertas</button>
-                    <button type="button" data-atalho="historico">Historico</button>
-                    <button type="button" data-atalho="relatorios">Relatorios</button>
+                    <button type="button" data-atalho="historico">Histórico</button>
+                    <button type="button" data-atalho="relatorios">Relatórios</button>
                 </section>
 
                 <form class="entrada-cynx" id="formCynx">
                     <label class="apenas-leitor" for="entradaMsg">Digite sua mensagem</label>
                     <input type="text" id="entradaMsg" maxlength="180" autocomplete="off"
-                        placeholder="Pergunte sobre estoque, alertas, historico ou relatorios">
+                        placeholder="Pergunte sobre estoque, alertas, histórico ou relatórios">
                     <button type="submit" aria-label="Enviar mensagem">Enviar</button>
                     <button type="button" id="btnMicrofone" aria-pressed="false">Falar</button>
                     <button type="button" id="btnAlternarVoz" aria-pressed="true">Voz ligada</button>
                 </form>
             </section>
 
-            <section class="cards-info historico-resumo-cards" aria-label="Resumo do historico">
+            <section class="cards-info historico-resumo-cards" aria-label="Resumo do histórico">
                 <div class="card-info">
                     <div class="icone-card" aria-hidden="true">
                         <img src="https://img.icons8.com/?size=100&id=wl02Vd5WH3QG&format=png&color=000000" alt="" width="30">
@@ -159,11 +159,11 @@
 
                 <div class="filtros-gestao-vendas">
 
-                    <select id="filtroPeriodoHistorico" aria-label="Filtrar por periodo">
-                        <option value="7dias">Ultimos 7 dias</option>
+                    <select id="filtroPeriodoHistorico" aria-label="Filtrar por período">
+                        <option value="7dias">Últimos 7 dias</option>
                         <option value="hoje">Hoje</option>
-                        <option value="30dias">Ultimos 30 dias</option>
-                        <option value="todos">Todo o periodo</option>
+                        <option value="30dias">Últimos 30 dias</option>
+                        <option value="todos">Todo o período</option>
                     </select>
 
                     <select id="filtroTipoHistorico" aria-label="Filtrar por tipo">
@@ -199,7 +199,7 @@
                     </div>
 
                     <div class="lista-critica" id="timelineHistorico">
-                        <p class="estado-vazio">Nenhuma atividade fixa cadastrada no frontend.</p>
+                        <p class="estado-vazio">Nenhuma atividade registrada no momento.</p>
                     </div>
                 </article>
 
@@ -222,9 +222,9 @@
                 <div class="cabecalho-secao">
                     <div>
                         <p class="sobrelinha-secao">Detalhamento</p>
-                        <h3>Registros auditaveis</h3>
+                        <h3>Registros auditáveis</h3>
                     </div>
-                    <span class="tag-secao">Ultimas atualizacoes</span>
+                    <span class="tag-secao">Últimas atualizações</span>
                 </div>
 
                 <div class="caixa-tabela">
@@ -241,7 +241,7 @@
                         </thead>
                         <tbody id="corpoTabelaHistorico">
                             <tr>
-                                <td colspan="5" class="linha-vazia">Nenhum registro disponivel no momento.</td>
+                                <td colspan="5" class="linha-vazia">Nenhum registro disponível no momento.</td>
                             </tr>
                         </tbody>
                     </table>

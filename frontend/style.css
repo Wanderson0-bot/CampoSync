@@ -2954,9 +2954,9 @@ body.modo-escuro .filtros-gestao-vendas select option {
     margin-top: 22px;
     padding: 24px;
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(237, 247, 232, 0.98), rgba(223, 240, 218, 0.98));
-    border: 1px solid rgba(47, 107, 59, 0.18);
-    box-shadow: 0 20px 40px rgba(33, 49, 38, 0.1);
+    background: var(--bot-bubble);
+    border: 1px solid rgba(47, 107, 59, 0.1);
+    box-shadow: 0 20px 40px rgba(33, 49, 38, 0.08);
 }
 
 .suprimentos-filtros .barra-ferramentas {
@@ -3146,7 +3146,7 @@ body.modo-escuro .filtros-gestao-vendas select option {
 }
 
 body.modo-escuro .suprimentos-filtros {
-    background: linear-gradient(180deg, rgba(31, 54, 38, 0.98), rgba(22, 39, 29, 0.98));
+    background: linear-gradient(180deg, rgba(30, 40, 33, 0.98), rgba(23, 31, 26, 0.98));
     border-color: var(--dark-line);
 }
 

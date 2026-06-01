@@ -373,14 +373,14 @@ const UNIT_LABELS = {
 const DEFAULT_MATERIAL_CATEGORIES = [
   "Equipamento",
   "Ferramenta",
-  "Irrigacao",
-  "Protecao"
+  "Irrigação",
+  "Proteção"
 ];
 
 const DEFAULT_MATERIAL_STATUSES = [
-  "Disponivel",
-  "Em manutencao",
-  "Indisponivel"
+  "Disponível",
+  "Em manutenção",
+  "Indisponível"
 ];
 
 function resolveUnitKey(value = "") {
@@ -678,7 +678,7 @@ function buildAssistantSearchAnswer(result) {
 
   if (result.type === "supply") {
     const item = result.record;
-    return `${item.product} aparece em suprimentos com estoque ${formatAssistantCount(item.stock)} e minimo ${formatAssistantCount(item.minStock)} na categoria ${item.domain}.`;
+    return `${item.product} aparece em suprimentos com estoque ${formatAssistantCount(item.stock)} e mínimo ${formatAssistantCount(item.minStock)} na categoria ${item.domain}.`;
   }
 
   if (result.type === "material") {
@@ -1010,9 +1010,9 @@ function normalizeMaterialStatus(value = "") {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
-  if (simplified === "disponivel") return "Disponivel";
-  if (simplified === "em manutencao") return "Em manutencao";
-  if (simplified === "quebrado" || simplified === "indisponivel") return "Indisponivel";
+  if (simplified === "disponivel") return "Disponível";
+  if (simplified === "em manutencao") return "Em manutenção";
+  if (simplified === "quebrado" || simplified === "indisponivel") return "Indisponível";
   return String(value || "").trim();
 }
 
@@ -1094,7 +1094,7 @@ function clearLegacyLocalData() {
   try {
     exactKeys.forEach((key) => localStorage.removeItem(key));
   } catch (error) {
-    reportClientIssue("Nao foi possivel limpar dados locais legados.", error);
+    reportClientIssue("Não foi possível limpar dados locais legados.", error);
   }
 }
 
@@ -1238,7 +1238,7 @@ function safeLocalStorageSet(key, value) {
   try {
     localStorage.setItem(key, value);
   } catch (error) {
-    console.warn("Nao foi possivel salvar a URL da API.", error);
+    console.warn("Não foi possível salvar a URL da API.", error);
   }
 }
 
@@ -1267,7 +1267,7 @@ function reportClientIssue(message, error, level = "warn") {
 async function apiRequest(path, options = {}) {
   const config = getRuntimeConfig();
   if (!config.useBackend || !config.apiBaseUrl) {
-    throw new Error("Backend desativado.");
+    throw new Error("Conexão de dados indisponível no momento.");
   }
 
   const controller = new AbortController();
@@ -1894,7 +1894,7 @@ async function registerAuditLog(entry = {}) {
     title: entry.title || "Evento registrado",
     details: entry.details || "",
     area: entry.area || "Sistema",
-    status: entry.status || "Concluido",
+    status: entry.status || "Concluído",
     date: entry.date || date,
     time: entry.time || time,
     user: entry.user || session.user?.email || session.email || "Sistema",
@@ -1907,7 +1907,7 @@ async function registerAuditLog(entry = {}) {
   try {
     return await services.auditLogs.create(payload);
   } catch (error) {
-    reportClientIssue("Nao foi possivel registrar log de auditoria.", error);
+    reportClientIssue("Não foi possível registrar log de auditoria.", error);
     return null;
   }
 }
@@ -1916,8 +1916,8 @@ function getPageAuditLabel(pageName = "") {
   const labels = {
     "index.html": "Dashboard",
     "areas_produtivas.html": "Áreas produtivas",
-    "gestao_compras.html": "Gestao de compras",
-    "gestao_vendas.html": "Gestao de vendas",
+    "gestao_compras.html": "Gestão de compras",
+    "gestao_vendas.html": "Gestão de vendas",
     "suprimentos.html": "Suprimentos",
     "consumos.html": "Consumos",
     "ferramentas.html": "Ferramentas",
@@ -2690,15 +2690,15 @@ async function setupUnitDailyActivities(unitPage, context = {}) {
     const eyebrow = routineHeader.querySelector(".sobrelinha-secao");
     const title = routineHeader.querySelector("h3");
     const tag = routineHeader.querySelector(".tag-secao");
-    if (eyebrow) eyebrow.textContent = "Rotina prioritaria";
+    if (eyebrow) eyebrow.textContent = "Rotina prioritária";
     if (title) title.textContent = "Controle diário de atividades";
-    if (tag) tag.textContent = "Formulario";
+    if (tag) tag.textContent = "Formulário";
   }
 
   if (historyHeader) {
     const eyebrow = historyHeader.querySelector(".sobrelinha-secao");
     const title = historyHeader.querySelector("h3");
-    if (eyebrow) eyebrow.textContent = "Historico diario";
+    if (eyebrow) eyebrow.textContent = "Histórico diário";
     if (title) title.textContent = "Atividades registradas";
   }
 
@@ -2837,7 +2837,7 @@ async function setupUnitDailyActivities(unitPage, context = {}) {
         title: "Atividade diária registrada",
         details: `${payload.title} registrada na unidade ${payload.unitName}.`,
         area: payload.unitName,
-        status: "Concluido",
+        status: "Concluído",
         entityType: "daily-unit-activity",
         entityId: created?.id,
         metadata: payload
@@ -2849,7 +2849,7 @@ async function setupUnitDailyActivities(unitPage, context = {}) {
       renderSummary();
       renderHistory();
     } catch (error) {
-      setFeedback(error?.message || "Nao foi possivel salvar a atividade agora.", "error");
+      setFeedback(error?.message || "Não foi possível salvar a atividade agora.", "error");
     }
   });
 
@@ -2900,7 +2900,7 @@ function createGenericUnitDashboardConfig(unit, category = "planta") {
     tableTitle: isAnimal ? "Monitoramento dos animais" : "Situação dos cultivos",
     summaryItems: [
       {
-        title: "Unidade carregada pelo backend",
+        title: "Unidade pronta para acompanhamento",
         description: `${unitName} está cadastrada como categoria ${isAnimal ? "animal" : "flora"}.`
       },
       {
@@ -3438,7 +3438,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
               <tr>
                 <td>
                   <strong>${escapeHtml(animal.codigo_animal || "--")}</strong>
-                  <small>${escapeHtml(animal.observacoes || "Sem observacoes.")}</small>
+                  <small>${escapeHtml(animal.observacoes || "Sem observações.")}</small>
                 </td>
                 <td>${escapeHtml(seedlingSpecies)}</td>
                 <td>${escapeHtml(seedlingType)}</td>
@@ -4937,7 +4937,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       .filter((item) => Number(item.stock) <= Number(item.minStock))
       .sort((a, b) => Number(a.stock) - Number(b.stock))[0];
     const latestAction = [...snapshot.actions].sort((a, b) => `${b.data_acao} ${formatActionTime(b.hora_acao)}`.localeCompare(`${a.data_acao} ${formatActionTime(a.hora_acao)}`))[0];
-    const materialsInMaintenance = snapshot.materials.filter((item) => item.status === "Em manutencao");
+    const materialsInMaintenance = snapshot.materials.filter((item) => item.status === "Em manutenção");
 
     heroTag.textContent = unreadNotifications.length ? "Atenção operacional" : "Operação estável";
     heroText.textContent = `Hoje o CampoSync acompanha ${totalUnits.toLocaleString("pt-BR")} unidades, ${snapshot.supplies.length.toLocaleString("pt-BR")} suprimentos e ${snapshot.materials.length.toLocaleString("pt-BR")} ferramentas com visão centralizada da rotina.`;
@@ -5099,7 +5099,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       mensagemFormUnidade.dataset.state = type;
     }
 
-    function getUnitActionErrorMessage(error, fallback = "Nao foi possivel concluir a operacao.") {
+    function getUnitActionErrorMessage(error, fallback = "Não foi possível concluir a operação.") {
       if (error?.status === 401) {
         return "Sua sessão expirou. Faça login novamente para continuar.";
       }
@@ -5185,7 +5185,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         try {
           await playNotificationSound();
         } catch (error) {
-          reportClientIssue("Nao foi possivel tocar o som da notificacao.", error);
+          reportClientIssue("Não foi possível tocar o som da notificação.", error);
         }
       }
     }
@@ -5434,7 +5434,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       const lng = rawLng ? Number(rawLng) : null;
 
       if ((rawLat && !Number.isFinite(lat)) || (rawLng && !Number.isFinite(lng))) {
-        return { error: "Informe coordenadas numericas validas." };
+        return { error: "Informe coordenadas numéricas válidas." };
       }
 
       if ((lat == null) !== (lng == null)) {
@@ -5696,10 +5696,10 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
             category: selectedCategory
           }
         });
-        prependNotification("Nova unidade criada", `A unidade ${cleanName} foi adicionada a lista de areas produtivas.`);
+        prependNotification("Nova unidade criada", `A unidade ${cleanName} foi adicionada à lista de áreas produtivas.`);
         closeUnitModal();
       } catch (error) {
-        setUnitFormMessage(getUnitActionErrorMessage(error, "Nao foi possivel salvar a unidade."), "error");
+        setUnitFormMessage(getUnitActionErrorMessage(error, "Não foi possível salvar a unidade."), "error");
       } finally {
         setUnitFormBusy(false);
       }
@@ -5726,21 +5726,21 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           await registerAuditLog({
             type: "Unidades",
             title: "Unidade removida",
-            details: `A unidade ${unitLabel} foi removida da lista de areas produtivas.`,
+            details: `A unidade ${unitLabel} foi removida da lista de áreas produtivas.`,
             area: "Áreas produtivas",
             status: "Concluído",
             entityType: "unit",
             entityId: unitId
           });
         } catch (error) {
-          prependNotification("Falha ao remover unidade", getUnitActionErrorMessage(error, "Nao foi possivel remover a unidade."));
+          prependNotification("Falha ao remover unidade", getUnitActionErrorMessage(error, "Não foi possível remover a unidade."));
           closeCardMenus();
           return;
         }
       }
 
       card.remove();
-      prependNotification("Unidade removida", `A unidade ${unitLabel} foi removida da lista de areas produtivas.`);
+      prependNotification("Unidade removida", `A unidade ${unitLabel} foi removida da lista de áreas produtivas.`);
     }
 
     if (imagemUnidade && prevImagem) {
@@ -5873,7 +5873,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     const atalhos = {
       estoque: "Quero consultar o estoque atual",
       alertas: "Mostre os alertas mais importantes",
-      historico: "Quero ver o historico recente",
+      historico: "Quero ver o histórico recente",
       relatorios: "Preciso de ajuda com relatórios"
     };
 
@@ -5884,7 +5884,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       },
       {
         chaves: ["alerta", "alertas", "aviso", "urgente", "pendencia"],
-        texto: "Os alertas ajudam a identificar itens com risco de falta, atrasos ou pendencias operacionais. Priorize os que impactam a producao e confira os registros mais recentes no painel."
+        texto: "Os alertas ajudam a identificar itens com risco de falta, atrasos ou pendências operacionais. Priorize os que impactam a produção e confira os registros mais recentes no painel."
       },
       {
         chaves: ["historico", "movimentacao", "registro", "log"],
@@ -5955,7 +5955,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     function responderLocalmente(msg) {
       const texto = msg.toLowerCase();
       const resposta = respostasLocais.find(({ chaves }) => chaves.some((chave) => texto.includes(chave)));
-      return resposta?.texto || "Consigo responder melhor quando a pergunta estiver ligada ao CampoSync. Tente algo sobre estoque, alertas, historico ou relatorios.";
+      return resposta?.texto || "Consigo responder melhor quando a pergunta estiver ligada ao CampoSync. Tente algo sobre estoque, alertas, histórico ou relatórios.";
     }
 
     function esperar(ms) {
@@ -5977,7 +5977,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     async function solicitarAudioCynx(texto) {
       const config = getRuntimeConfig();
       if (!config.useBackend || !config.apiBaseUrl) {
-        throw new Error("Backend desativado.");
+        throw new Error("Conexão de dados indisponível no momento.");
       }
 
       const token = getAuthToken();
@@ -5997,7 +5997,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           : await response.text();
         const message =
           (typeof payload === "object" && (payload.message || payload.error)) ||
-          "Nao foi possivel gerar o audio do Cynx.";
+          "Não foi possível gerar o áudio do Cynx.";
         const error = new Error(message);
         error.status = response.status;
         error.payload = payload;
@@ -6820,8 +6820,8 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     try {
       await ensureChartJs();
     } catch (error) {
-      chartCanvas.setAttribute("aria-label", "Nao foi possivel carregar o grafico de compras.");
-      reportClientIssue("Nao foi possivel carregar o grafico de compras.", error);
+      chartCanvas.setAttribute("aria-label", "Não foi possível carregar o gráfico de compras.");
+      reportClientIssue("Não foi possível carregar o gráfico de compras.", error);
     }
 
     renderPurchases();
@@ -7017,14 +7017,14 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         <tr>
           <td>
             <strong>${escapeHtml(item.produto || item.categoria)}</strong>
-            <small>${escapeHtml(item.observacoes || "Sem observacoes")}</small>
+            <small>${escapeHtml(item.observacoes || "Sem observações")}</small>
           </td>
           <td>${escapeHtml(formatCategoryLabel(item.categoria))}</td>
           <td>${escapeHtml(String(item.quantidade))}</td>
           <td>${formatCurrency(item.valor_unitario)}</td>
           <td>${formatCurrency(total)}</td>
           <td>${escapeHtml(formatDate(item.data_venda))}</td>
-          <td>${escapeHtml(item.cliente || "Nao informado")}</td>
+          <td>${escapeHtml(item.cliente || "Não informado")}</td>
           <td>
             <button type="button" class="btn-acao-tabela" data-delete-sale-id="${item.id}">Excluir</button>
           </td>
@@ -7046,7 +7046,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           labels: vendasPorPeriodo.map((item) => item.periodo),
           datasets: [
             {
-              label: "Faturamento por periodo",
+              label: "Faturamento por período",
               data: vendasPorPeriodo.map((item) => item.total),
               backgroundColor: ["#d59c57", "#c98316", "#8ea654", "#2f6f4f", "#244f39"],
               borderRadius: 12,
@@ -7155,13 +7155,13 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
       const matchingSupply = findMatchingSupply(sale.produto, sale.categoria);
       if (!matchingSupply) {
-        setFeedback("Nao existe suprimento correspondente em estoque para este produto e categoria.", "error");
+        setFeedback("Não existe suprimento correspondente em estoque para este produto e categoria.", "error");
         return;
       }
 
       if (Number(sale.quantidade) > Number(matchingSupply.stock || 0)) {
         setFeedback(
-          `Estoque insuficiente para ${sale.produto}. Disponivel: ${matchingSupply.stock}. Solicitado: ${sale.quantidade}.`,
+          `Estoque insuficiente para ${sale.produto}. Disponível: ${matchingSupply.stock}. Solicitado: ${sale.quantidade}.`,
           "error"
         );
         return;
@@ -7246,7 +7246,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       renderSalesCategorySelects();
       renderSalesPage();
     } catch {
-      canvasPeriodo.setAttribute("aria-label", "Nao foi possivel carregar o grafico de vendas.");
+      canvasPeriodo.setAttribute("aria-label", "Não foi possível carregar o gráfico de vendas.");
       renderSalesCategorySelects();
       renderSummary();
       renderTable();
@@ -7565,7 +7565,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
             datasets: [
               {
                 label:
-                  "Consumo estimado por periodo",
+                  "Consumo estimado por período",
 
                 data: Object.values(grouped),
 
@@ -7608,19 +7608,19 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       };
 
       if (!consumption.produto || !consumption.categoria || !consumption.data_consumo || consumption.quantidade <= 0) {
-        setFeedback("Preencha produto, categoria, data e quantidade com valores validos.", "error");
+        setFeedback("Preencha produto, categoria, data e quantidade com valores válidos.", "error");
         return;
       }
 
       const matchingSupply = findMatchingSupply(consumption.produto, consumption.categoria);
       if (!matchingSupply) {
-        setFeedback("Nao existe suprimento correspondente em estoque para este produto e categoria.", "error");
+        setFeedback("Não existe suprimento correspondente em estoque para este produto e categoria.", "error");
         return;
       }
 
       if (Number(consumption.quantidade) > Number(matchingSupply.stock || 0)) {
         setFeedback(
-          `Estoque insuficiente para ${consumption.produto}. Disponivel: ${matchingSupply.stock}. Solicitado: ${consumption.quantidade}.`,
+          `Estoque insuficiente para ${consumption.produto}. Disponível: ${matchingSupply.stock}. Solicitado: ${consumption.quantidade}.`,
           "error"
         );
         return;
@@ -7643,7 +7643,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           title: "Consumo registrado",
           details: `${consumption.produto} consumido em ${formatConsumptionCategory(consumption.categoria)}. Estoque restante: ${remainingStock}.`,
           area: formatConsumptionCategory(consumption.categoria),
-          status: "Concluido",
+          status: "Concluído",
           entityType: "consumption",
           entityId: createdConsumption?.id,
           metadata: payload
@@ -7652,7 +7652,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         setFeedback("Consumo registrado com sucesso.", "success");
         renderConsumptions();
       } catch (error) {
-        setFeedback(error?.message || "Nao foi possivel registrar o consumo agora.", "error");
+        setFeedback(error?.message || "Não foi possível registrar o consumo agora.", "error");
       }
     });
 
@@ -7663,8 +7663,8 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     try {
       await ensureChartJs();
     } catch (error) {
-      chartCanvas.setAttribute("aria-label", "Nao foi possivel carregar o grafico de consumos.");
-      reportClientIssue("Nao foi possivel carregar o grafico de consumos.", error);
+      chartCanvas.setAttribute("aria-label", "Não foi possível carregar o gráfico de consumos.");
+      reportClientIssue("Não foi possível carregar o gráfico de consumos.", error);
     }
 
     renderConsumptions();
@@ -7699,11 +7699,11 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     function getStatus(item) {
       if (Number(item.stock) <= Number(item.minStock)) {
-        return { label: "Critico", className: "selo-status esta-critico" };
+        return { label: "Crítico", className: "selo-status esta-critico" };
       }
 
       if (Number(item.stock) <= Number(item.minStock) + 15) {
-        return { label: "Atencao", className: "selo-status esta-alerta" };
+        return { label: "Atenção", className: "selo-status esta-alerta" };
       }
 
       return { label: "Regular", className: "selo-status esta-ok" };
@@ -7768,7 +7768,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           <tr>
             <td>
               <strong>${escapeHtml(item.product)}</strong>
-              <small>Minimo recomendado: ${item.minStock}</small>
+              <small>Mínimo recomendado: ${item.minStock}</small>
             </td>
             <td>${escapeHtml(getUnitDisplayLabel(item.domain))}</td>
             <td>${item.stock}</td>
@@ -7808,7 +7808,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       }
 
       if (unitPrice < 0) {
-        setFeedback("O valor unitario precisa ser maior ou igual a zero.", "error");
+        setFeedback("O valor unitário precisa ser maior ou igual a zero.", "error");
         return;
       }
 
@@ -7829,7 +7829,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           title: "Suprimento registrado",
           details: `${product} adicionado ao estoque com ${stock} unidades.`,
           area: domain,
-          status: "Concluido",
+          status: "Concluído",
           entityType: "supply",
           entityId: createdSupply?.id,
           metadata: {
@@ -7851,7 +7851,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           window.dispatchEvent(new CustomEvent("camposync:notifications-changed"));
         }
       } catch (error) {
-        setFeedback(error?.message || "Nao foi possivel salvar o suprimento agora.", "error");
+        setFeedback(error?.message || "Não foi possível salvar o suprimento agora.", "error");
       }
     });
 
@@ -8002,14 +8002,14 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       );
 
       const maintenance = materials
-        .filter((item) => item.status === "Em manutencao")
+        .filter((item) => item.status === "Em manutenção")
         .reduce(
           (sum, item) => sum + Number(item.quantidade || 0),
           0
         );
 
       const available = materials
-        .filter((item) => item.status === "Disponivel")
+        .filter((item) => item.status === "Disponível")
         .reduce(
           (sum, item) => sum + Number(item.quantidade || 0),
           0
@@ -8100,9 +8100,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         </td>
 
         <td>
-          <span class="${item.status === "Indisponivel"
+          <span class="${item.status === "Indisponível"
           ? "selo-status esta-critico"
-          : item.status === "Em manutencao"
+          : item.status === "Em manutenção"
             ? "selo-status esta-alerta"
             : "selo-status esta-ok"
         }">
@@ -8134,8 +8134,8 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
       const maintenanceItems = materials
         .filter((item) =>
-          item.status === "Em manutencao" ||
-          item.status === "Indisponivel"
+          item.status === "Em manutenção" ||
+          item.status === "Indisponível"
         )
         .sort((a, b) =>
           String(a.ultima_inspecao || "")
@@ -8273,7 +8273,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
             ? `${material.material} atualizado para status ${material.status}.`
             : `${material.material} registrado com status ${material.status}.`,
           area: material.dominio || material.categoria,
-          status: "Concluido",
+          status: "Concluído",
           entityType: "material",
           entityId: savedMaterial?.id,
           metadata: material
@@ -8301,7 +8301,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
         setFeedback(
           error?.message ||
-          "Nao foi possivel salvar o material agora.",
+          "Não foi possível salvar o material agora.",
           "error"
         );
       }
@@ -8455,7 +8455,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           saveAuthSession(session);
         }
       } catch (error) {
-        reportClientIssue("Nao foi possivel sincronizar o perfil com o backend.", error);
+        reportClientIssue("Não foi possível sincronizar o perfil com o backend.", error);
       }
     }
 
@@ -8472,13 +8472,13 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       }
 
       if (!file.type.startsWith("image/")) {
-        setProfileStatus("Selecione uma imagem valida para o perfil.", "error");
+        setProfileStatus("Selecione uma imagem válida para o perfil.", "error");
         event.target.value = "";
         return;
       }
 
       if (file.size > PROFILE_AVATAR_MAX_FILE_SIZE) {
-        setProfileStatus("A imagem deve ter no maximo 900 KB.", "error");
+        setProfileStatus("A imagem deve ter no máximo 900 KB.", "error");
         event.target.value = "";
         return;
       }
@@ -8506,7 +8506,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         if (profileAvatarImage) {
           profileAvatarImage.src = previousAvatar;
         }
-        setProfileStatus(error?.message || "Nao foi possivel salvar a foto de perfil agora.", "error");
+        setProfileStatus(error?.message || "Não foi possível salvar a foto de perfil agora.", "error");
       } finally {
         event.target.value = "";
       }
@@ -8517,11 +8517,11 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     const session = readAuthSession();
     if (session?.token) {
       await registerAuditLog({
-        type: "Autenticacao",
+        type: "Autenticação",
         title: "Logout realizado",
-        details: `Usuario ${session.user?.email || session.email || "desconhecido"} encerrou a sessao.`,
-        area: "Autenticacao",
-        status: "Concluido",
+        details: `Usuário ${session.user?.email || session.email || "desconhecido"} encerrou a sessão.`,
+        area: "Autenticação",
+        status: "Concluído",
         source: "frontend",
         entityType: "session"
       });
@@ -8582,7 +8582,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         area: item.categoria,
         date: item.data_consumo,
         time: String(item.createdAt || "").slice(11, 16),
-        status: Number(item.stock) <= 0 ? "Atencao" : "Concluido",
+        status: Number(item.stock) <= 0 ? "Atenção" : "Concluído",
         title: item.produto,
         details: item.observacoes || `Consumo estimado em ${formatCurrency(Number(item.estimatedCost || 0))}.`
       })),
@@ -8634,7 +8634,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       area: item.area || "Sistema",
       date: item.date || String(item.createdAt || "").slice(0, 10) || today,
       time: item.time || String(item.createdAt || "").slice(11, 16),
-      status: item.status || "Concluido",
+      status: item.status || "Concluído",
       title: item.title || "Evento registrado",
       details: item.details || ""
     }));
@@ -8696,7 +8696,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         <td>${escapeHtml(record.user)}</td>
         <td>${escapeHtml(record.area)}</td>
         <td>${escapeHtml(formatDate(record.date))}</td>
-        <td><span class="${record.status === "Pendente" || record.status === "Atenção" || record.status === "Quebrado" || record.status === "Indisponivel" ? "selo-status esta-alerta" : "selo-status esta-ok"}">${escapeHtml(record.status)}</span></td>
+        <td><span class="${record.status === "Pendente" || record.status === "Atenção" || record.status === "Quebrado" || record.status === "Indisponível" ? "selo-status esta-alerta" : "selo-status esta-ok"}">${escapeHtml(record.status)}</span></td>
       </tr>
     `).join("");
 
@@ -8862,7 +8862,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       });
       window.addEventListener("load", () => map.invalidateSize(), { once: true });
     } catch (error) {
-      reportClientIssue("Nao foi possivel inicializar o Leaflet. Renderizando mapa local.", error);
+      reportClientIssue("Não foi possível inicializar o Leaflet. Renderizando mapa local.", error);
       renderStaticHomeMap(mapElement, mapLocations);
     }
   }
@@ -8890,7 +8890,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     <div class="mapa-fallback__grade" aria-hidden="true"></div>
     <div class="mapa-fallback__legenda">
       <strong>Mapa das unidades</strong>
-      <span>Visualizacao local carregada</span>
+      <span>Visualização local carregada</span>
     </div>
     <div class="mapa-fallback__pontos" aria-label="Mapa simplificado das unidades produtivas"></div>
   `;
@@ -9244,7 +9244,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
             window.location.assign("login.html");
           }, 700);
         } catch (error) {
-          setFeedback(error?.message || "Não foi possivel concluir o cadastro.", "error");
+          setFeedback(error?.message || "Não foi possível concluir o cadastro.", "error");
         }
       });
       return true;
