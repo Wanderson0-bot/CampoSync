@@ -2,6 +2,7 @@ import { env } from '../config/env.js';
 
 function isAllowedOrigin(origin) {
   if (!origin) return true;
+  if (origin === 'null') return true;
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
     return true;
   }
@@ -17,8 +18,8 @@ function isAllowedOrigin(origin) {
 // Cabeçalhos básicos de endurecimento para reduzir riscos comuns no browser.
 export function applySecurityHeaders(req, res, next) {
   const connectSrc = env.nodeEnv === 'production'
-    ? "'self' http://localhost:5000 http://127.0.0.1:5000"
-    : "'self' http:";
+    ? "'self' https://camposync.onrender.com http://localhost:5000 http://127.0.0.1:5000"
+    : "'self' http: https://camposync.onrender.com";
 
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');

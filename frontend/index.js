@@ -1087,34 +1087,12 @@ function resolveProfileAvatar(user = {}) {
 
 function clearLegacyLocalData() {
   const exactKeys = [
-    STORAGE_KEYS.notifications,
-    STORAGE_KEYS.purchases,
-    STORAGE_KEYS.consumptions,
-    STORAGE_KEYS.sales,
-    STORAGE_KEYS.supplies,
-    STORAGE_KEYS.materials,
-    STORAGE_KEYS.actions,
-    STORAGE_KEYS.auditLogs,
-    STORAGE_KEYS.customUnits,
-    STORAGE_KEYS.removedUnits,
-    STORAGE_KEYS.editedDefaultUnits,
-    STORAGE_KEYS.swineAnimals,
-    STORAGE_KEYS.swineLifeEvents,
-    STORAGE_KEYS.swineDeaths,
     STORAGE_KEYS.authUsers,
     STORAGE_KEYS.apiBaseUrl
-  ];
-  const prefixes = [
-    `${STORAGE_KEYS.swineAnimals}-`,
-    `${STORAGE_KEYS.swineLifeEvents}-`,
-    `${STORAGE_KEYS.swineDeaths}-`
   ];
 
   try {
     exactKeys.forEach((key) => localStorage.removeItem(key));
-    Object.keys(localStorage)
-      .filter((key) => prefixes.some((prefix) => key.startsWith(prefix)))
-      .forEach((key) => localStorage.removeItem(key));
   } catch (error) {
     reportClientIssue("Nao foi possivel limpar dados locais legados.", error);
   }
@@ -1342,10 +1320,12 @@ async function apiRequest(path, options = {}) {
 
 function cacheList(key, items) {
   const cacheKey = CACHE_KEY_MAP[key] || key;
+  const nextItems = Array.isArray(items) ? items : [];
   if (Object.prototype.hasOwnProperty.call(APP_CACHE, cacheKey)) {
-    APP_CACHE[cacheKey] = Array.isArray(items) ? items : [];
+    APP_CACHE[cacheKey] = nextItems;
   }
-  return items;
+  writeStorage(key, nextItems);
+  return nextItems;
 }
 
 function cacheUpsert(key, item, fallback = []) {
@@ -1356,6 +1336,7 @@ function cacheUpsert(key, item, fallback = []) {
   if (Object.prototype.hasOwnProperty.call(APP_CACHE, cacheKey)) {
     APP_CACHE[cacheKey] = nextItems;
   }
+  writeStorage(key, nextItems);
   return item;
 }
 
@@ -1368,6 +1349,7 @@ function cacheReplace(key, itemId, nextItem, fallback = []) {
   if (Object.prototype.hasOwnProperty.call(APP_CACHE, cacheKey)) {
     APP_CACHE[cacheKey] = nextItems;
   }
+  writeStorage(key, nextItems);
   return nextItem;
 }
 
@@ -1378,7 +1360,39 @@ function cacheRemove(key, itemId, fallback = []) {
   if (Object.prototype.hasOwnProperty.call(APP_CACHE, cacheKey)) {
     APP_CACHE[cacheKey] = nextItems;
   }
+  writeStorage(key, nextItems);
   return true;
+}
+
+function readLocalList(key) {
+  return toArray(safeParse(key, []));
+}
+
+function createLocalEntity(key, payload = {}) {
+  const now = new Date().toISOString();
+  const item = {
+    ...payload,
+    id: payload.id || `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    createdAt: payload.createdAt || now,
+    updatedAt: payload.updatedAt || now
+  };
+  return cacheUpsert(key, item, readLocalList(key));
+}
+
+function updateLocalEntity(key, itemId, payload = {}) {
+  const currentItems = readLocalList(key);
+  const existing = currentItems.find((entry) => String(entry.id) === String(itemId)) || {};
+  const item = {
+    ...existing,
+    ...payload,
+    id: existing.id || itemId,
+    updatedAt: new Date().toISOString()
+  };
+  return cacheReplace(key, itemId, item, currentItems);
+}
+
+function removeLocalEntity(key, itemId) {
+  return cacheRemove(key, itemId, readLocalList(key));
 }
 
 /* ==============================
@@ -1392,21 +1406,35 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.notifications, toArray(await apiRequest("/notifications")));
         } catch (error) {
           reportClientIssue("Failed to load notifications.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.notifications, readLocalList(STORAGE_KEYS.notifications));
         }
       },
       async markRead(notificationId) {
-        await apiRequest(`/notifications/${notificationId}/read`, { method: "PATCH" });
+        try {
+          await apiRequest(`/notifications/${notificationId}/read`, { method: "PATCH" });
+        } catch (error) {
+          reportClientIssue("Failed to mark notification as read.", error);
+        }
+        updateLocalEntity(STORAGE_KEYS.notifications, notificationId, { read: true });
         return true;
       },
       async markAllRead() {
-        await apiRequest("/notifications/read-all", { method: "PATCH" });
+        try {
+          await apiRequest("/notifications/read-all", { method: "PATCH" });
+        } catch (error) {
+          reportClientIssue("Failed to mark all notifications as read.", error);
+        }
+        cacheList(
+          STORAGE_KEYS.notifications,
+          readLocalList(STORAGE_KEYS.notifications).map((notification) => ({ ...notification, read: true }))
+        );
         return true;
       },
       prependLocal(notification) {
-        const notifications = APP_CACHE.notifications;
+        const notifications = APP_CACHE.notifications.length ? APP_CACHE.notifications : readLocalList(STORAGE_KEYS.notifications);
         const nextList = [notification, ...notifications];
         APP_CACHE.notifications = nextList;
+        writeStorage(STORAGE_KEYS.notifications, nextList);
         return nextList;
       }
     },
@@ -1423,15 +1451,26 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.purchases, toArray(await apiRequest("/purchases")));
         } catch (error) {
           reportClientIssue("Failed to load purchases.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.purchases, readLocalList(STORAGE_KEYS.purchases));
         }
       },
       async create(purchase) {
-        return cacheUpsert(STORAGE_KEYS.purchases, toEntity(await apiRequest("/purchases", { method: "POST", body: purchase })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.purchases, toEntity(await apiRequest("/purchases", { method: "POST", body: purchase })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create purchase in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.purchases, purchase);
+        }
       },
       async remove(purchaseId) {
-        await apiRequest(`/purchases/${purchaseId}`, { method: "DELETE" });
-        cacheRemove(STORAGE_KEYS.purchases, purchaseId, []);
+        try {
+          await apiRequest(`/purchases/${purchaseId}`, { method: "DELETE" });
+        } catch (error) {
+          if (error?.status !== 404) {
+            reportClientIssue("Failed to remove purchase in backend. Removing locally.", error);
+          }
+        }
+        removeLocalEntity(STORAGE_KEYS.purchases, purchaseId);
         return true;
       }
     },
@@ -1442,21 +1481,26 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.sales, toArray(await apiRequest("/sales")));
         } catch (error) {
           reportClientIssue("Failed to load sales.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.sales, readLocalList(STORAGE_KEYS.sales));
         }
       },
       async create(sale) {
-        return cacheUpsert(STORAGE_KEYS.sales, toEntity(await apiRequest("/sales", { method: "POST", body: sale })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.sales, toEntity(await apiRequest("/sales", { method: "POST", body: sale })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create sale in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.sales, sale);
+        }
       },
       async remove(saleId) {
         try {
           await apiRequest(`/sales/${saleId}`, { method: "DELETE" });
         } catch (error) {
           if (error?.status !== 404) {
-            throw error;
+            reportClientIssue("Failed to remove sale in backend. Removing locally.", error);
           }
         }
-        cacheRemove(STORAGE_KEYS.sales, saleId, []);
+        removeLocalEntity(STORAGE_KEYS.sales, saleId);
         return true;
       }
     },
@@ -1467,11 +1511,16 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.consumptions, toArray(await apiRequest("/consumptions")));
         } catch (error) {
           reportClientIssue("Failed to load consumptions.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.consumptions, readLocalList(STORAGE_KEYS.consumptions));
         }
       },
       async create(consumption) {
-        return cacheUpsert(STORAGE_KEYS.consumptions, toEntity(await apiRequest("/consumptions", { method: "POST", body: consumption })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.consumptions, toEntity(await apiRequest("/consumptions", { method: "POST", body: consumption })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create consumption in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.consumptions, consumption);
+        }
       }
     },
 
@@ -1481,40 +1530,70 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.actions, toArray(await apiRequest("/actions")));
         } catch (error) {
           reportClientIssue("Failed to load actions.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.actions, readLocalList(STORAGE_KEYS.actions));
         }
       },
       async create(action) {
-        return cacheUpsert(STORAGE_KEYS.actions, toEntity(await apiRequest("/actions", { method: "POST", body: action })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.actions, toEntity(await apiRequest("/actions", { method: "POST", body: action })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create action in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.actions, action);
+        }
       },
       async update(actionId, action) {
-        return cacheReplace(STORAGE_KEYS.actions, actionId, toEntity(await apiRequest(`/actions/${actionId}`, { method: "PUT", body: action })), []);
+        try {
+          return cacheReplace(STORAGE_KEYS.actions, actionId, toEntity(await apiRequest(`/actions/${actionId}`, { method: "PUT", body: action })), []);
+        } catch (error) {
+          reportClientIssue("Failed to update action in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.actions, actionId, action);
+        }
       },
       async remove(actionId) {
         try {
           await apiRequest(`/actions/${actionId}`, { method: "DELETE" });
         } catch (error) {
           if (error?.status !== 404) {
-            throw error;
+            reportClientIssue("Failed to remove action in backend. Removing locally.", error);
           }
         }
-        cacheRemove(STORAGE_KEYS.actions, actionId, []);
+        removeLocalEntity(STORAGE_KEYS.actions, actionId);
         return true;
       }
     },
 
     dailyUnitActivities: {
       async list() {
-        return toArray(await apiRequest("/daily-unit-activities"));
+        try {
+          return cacheList("camposync-daily-unit-activities", toArray(await apiRequest("/daily-unit-activities")));
+        } catch (error) {
+          reportClientIssue("Failed to load daily activities.", error, "error");
+          return cacheList("camposync-daily-unit-activities", readLocalList("camposync-daily-unit-activities"));
+        }
       },
       async create(payload) {
-        return toEntity(await apiRequest("/daily-unit-activities", { method: "POST", body: payload }));
+        try {
+          return cacheUpsert("camposync-daily-unit-activities", toEntity(await apiRequest("/daily-unit-activities", { method: "POST", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create daily activity in backend. Saving locally.", error);
+          return createLocalEntity("camposync-daily-unit-activities", payload);
+        }
       },
       async update(itemId, payload) {
-        return toEntity(await apiRequest(`/daily-unit-activities/${itemId}`, { method: "PUT", body: payload }));
+        try {
+          return cacheReplace("camposync-daily-unit-activities", itemId, toEntity(await apiRequest(`/daily-unit-activities/${itemId}`, { method: "PUT", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to update daily activity in backend. Saving locally.", error);
+          return updateLocalEntity("camposync-daily-unit-activities", itemId, payload);
+        }
       },
       async remove(itemId) {
-        await apiRequest(`/daily-unit-activities/${itemId}`, { method: "DELETE" });
+        try {
+          await apiRequest(`/daily-unit-activities/${itemId}`, { method: "DELETE" });
+        } catch (error) {
+          reportClientIssue("Failed to remove daily activity in backend. Removing locally.", error);
+        }
+        removeLocalEntity("camposync-daily-unit-activities", itemId);
         return true;
       }
     },
@@ -1525,11 +1604,16 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.auditLogs, toArray(await apiRequest("/audit-logs")));
         } catch (error) {
           reportClientIssue("Failed to load audit logs.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.auditLogs, readLocalList(STORAGE_KEYS.auditLogs));
         }
       },
       async create(entry) {
-        return cacheUpsert(STORAGE_KEYS.auditLogs, toEntity(await apiRequest("/audit-logs", { method: "POST", body: entry })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.auditLogs, toEntity(await apiRequest("/audit-logs", { method: "POST", body: entry })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create audit log in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.auditLogs, entry);
+        }
       }
     },
 
@@ -1539,11 +1623,16 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.supplies, toArray(await apiRequest("/supplies")));
         } catch (error) {
           reportClientIssue("Failed to load supplies.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.supplies, readLocalList(STORAGE_KEYS.supplies));
         }
       },
       async create(item) {
-        return cacheUpsert(STORAGE_KEYS.supplies, toEntity(await apiRequest("/supplies", { method: "POST", body: item })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.supplies, toEntity(await apiRequest("/supplies", { method: "POST", body: item })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create supply in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.supplies, item);
+        }
       }
     },
 
@@ -1553,140 +1642,231 @@ function createAppServices() {
           return cacheList(STORAGE_KEYS.materials, toArray(await apiRequest("/materials")));
         } catch (error) {
           reportClientIssue("Failed to load materials.", error, "error");
-          return [];
+          return cacheList(STORAGE_KEYS.materials, readLocalList(STORAGE_KEYS.materials));
         }
       },
       async create(material) {
-        return cacheUpsert(STORAGE_KEYS.materials, toEntity(await apiRequest("/materials", { method: "POST", body: material })), []);
+        try {
+          return cacheUpsert(STORAGE_KEYS.materials, toEntity(await apiRequest("/materials", { method: "POST", body: material })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create material in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.materials, material);
+        }
       },
       async update(materialId, material) {
-        return cacheReplace(STORAGE_KEYS.materials, materialId, toEntity(await apiRequest(`/materials/${materialId}`, { method: "PUT", body: material })), []);
+        try {
+          return cacheReplace(STORAGE_KEYS.materials, materialId, toEntity(await apiRequest(`/materials/${materialId}`, { method: "PUT", body: material })), []);
+        } catch (error) {
+          reportClientIssue("Failed to update material in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.materials, materialId, material);
+        }
       },
       async remove(materialId) {
         try {
           await apiRequest(`/materials/${materialId}`, { method: "DELETE" });
         } catch (error) {
           if (error?.status !== 404) {
-            throw error;
+            reportClientIssue("Failed to remove material in backend. Removing locally.", error);
           }
         }
-        cacheRemove(STORAGE_KEYS.materials, materialId, []);
+        removeLocalEntity(STORAGE_KEYS.materials, materialId);
         return true;
       }
     },
 
     units: {
       async listCustom() {
-        return cacheList(STORAGE_KEYS.customUnits, toArray(await apiRequest("/units/custom")));
+        try {
+          return cacheList(STORAGE_KEYS.customUnits, toArray(await apiRequest("/units/custom")));
+        } catch (error) {
+          reportClientIssue("Failed to load units.", error, "error");
+          return cacheList(STORAGE_KEYS.customUnits, readLocalList(STORAGE_KEYS.customUnits));
+        }
       },
       async getCustom(unitIdOrSlug) {
-        return toEntity(await apiRequest(`/units/custom/${encodeURIComponent(unitIdOrSlug)}`));
+        try {
+          return toEntity(await apiRequest(`/units/custom/${encodeURIComponent(unitIdOrSlug)}`));
+        } catch (error) {
+          reportClientIssue("Failed to load unit in backend. Loading locally.", error);
+          return readLocalList(STORAGE_KEYS.customUnits).find((unit) => (
+            String(unit.id) === String(unitIdOrSlug) || String(unit.slug) === String(unitIdOrSlug)
+          )) || {};
+        }
       },
       async createCustom(unit) {
-        return cacheUpsert(
-          STORAGE_KEYS.customUnits,
-          toEntity(await apiRequest("/units/custom", { method: "POST", body: unit })),
-          []
-        );
+        try {
+          return cacheUpsert(
+            STORAGE_KEYS.customUnits,
+            toEntity(await apiRequest("/units/custom", { method: "POST", body: unit })),
+            []
+          );
+        } catch (error) {
+          reportClientIssue("Failed to create unit in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.customUnits, unit);
+        }
       },
       async updateCustom(unitId, unit) {
-        return cacheReplace(
-          STORAGE_KEYS.customUnits,
-          unitId,
-          toEntity(await apiRequest(`/units/custom/${unitId}`, { method: "PUT", body: unit })),
-          []
-        );
+        try {
+          return cacheReplace(
+            STORAGE_KEYS.customUnits,
+            unitId,
+            toEntity(await apiRequest(`/units/custom/${unitId}`, { method: "PUT", body: unit })),
+            []
+          );
+        } catch (error) {
+          reportClientIssue("Failed to update unit in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.customUnits, unitId, unit);
+        }
       },
       async removeCustom(unitId) {
-        await apiRequest(`/units/custom/${unitId}`, { method: "DELETE" });
-        return cacheRemove(STORAGE_KEYS.customUnits, unitId, []);
+        try {
+          await apiRequest(`/units/custom/${unitId}`, { method: "DELETE" });
+        } catch (error) {
+          reportClientIssue("Failed to remove unit in backend. Removing locally.", error);
+        }
+        return removeLocalEntity(STORAGE_KEYS.customUnits, unitId);
       }
     },
 
     lifecycle: {
       animals: {
         async list() {
-          try {
-            return cacheList(STORAGE_KEYS.swineAnimals, toArray(await apiRequest("/lifecycle/animals")));
-          } catch (error) {
-            reportClientIssue("Failed to load lifecycle animals.", error, "error");
-            return [];
-          }
-        },
-        async create(payload) {
-          return cacheUpsert(STORAGE_KEYS.swineAnimals, toEntity(await apiRequest("/lifecycle/animals", { method: "POST", body: payload })), []);
-        },
-        async update(itemId, payload) {
-          return cacheReplace(STORAGE_KEYS.swineAnimals, itemId, toEntity(await apiRequest(`/lifecycle/animals/${itemId}`, { method: "PUT", body: payload })), []);
-        },
-        async remove(itemId) {
-          await apiRequest(`/lifecycle/animals/${itemId}`, { method: "DELETE" });
-          cacheRemove(STORAGE_KEYS.swineAnimals, itemId, []);
-          return true;
+        try {
+          return cacheList(STORAGE_KEYS.swineAnimals, toArray(await apiRequest("/lifecycle/animals")));
+        } catch (error) {
+          reportClientIssue("Failed to load lifecycle animals.", error, "error");
+          return cacheList(STORAGE_KEYS.swineAnimals, readLocalList(STORAGE_KEYS.swineAnimals));
         }
+      },
+      async create(payload) {
+        try {
+          return cacheUpsert(STORAGE_KEYS.swineAnimals, toEntity(await apiRequest("/lifecycle/animals", { method: "POST", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create lifecycle animal in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.swineAnimals, payload);
+        }
+      },
+      async update(itemId, payload) {
+        try {
+          return cacheReplace(STORAGE_KEYS.swineAnimals, itemId, toEntity(await apiRequest(`/lifecycle/animals/${itemId}`, { method: "PUT", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to update lifecycle animal in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.swineAnimals, itemId, payload);
+        }
+      },
+      async remove(itemId) {
+        try {
+          await apiRequest(`/lifecycle/animals/${itemId}`, { method: "DELETE" });
+        } catch (error) {
+          reportClientIssue("Failed to remove lifecycle animal in backend. Removing locally.", error);
+        }
+        removeLocalEntity(STORAGE_KEYS.swineAnimals, itemId);
+        return true;
+      }
       },
       events: {
         async list() {
-          try {
-            return cacheList(STORAGE_KEYS.swineLifeEvents, toArray(await apiRequest("/lifecycle/events")));
-          } catch (error) {
-            reportClientIssue("Failed to load lifecycle events.", error, "error");
-            return [];
-          }
-        },
-        async create(payload) {
-          return cacheUpsert(STORAGE_KEYS.swineLifeEvents, toEntity(await apiRequest("/lifecycle/events", { method: "POST", body: payload })), []);
-        },
-        async update(itemId, payload) {
-          return cacheReplace(STORAGE_KEYS.swineLifeEvents, itemId, toEntity(await apiRequest(`/lifecycle/events/${itemId}`, { method: "PUT", body: payload })), []);
-        },
-        async remove(itemId) {
-          await apiRequest(`/lifecycle/events/${itemId}`, { method: "DELETE" });
-          cacheRemove(STORAGE_KEYS.swineLifeEvents, itemId, []);
-          return true;
+        try {
+          return cacheList(STORAGE_KEYS.swineLifeEvents, toArray(await apiRequest("/lifecycle/events")));
+        } catch (error) {
+          reportClientIssue("Failed to load lifecycle events.", error, "error");
+          return cacheList(STORAGE_KEYS.swineLifeEvents, readLocalList(STORAGE_KEYS.swineLifeEvents));
         }
+      },
+      async create(payload) {
+        try {
+          return cacheUpsert(STORAGE_KEYS.swineLifeEvents, toEntity(await apiRequest("/lifecycle/events", { method: "POST", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create lifecycle event in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.swineLifeEvents, payload);
+        }
+      },
+      async update(itemId, payload) {
+        try {
+          return cacheReplace(STORAGE_KEYS.swineLifeEvents, itemId, toEntity(await apiRequest(`/lifecycle/events/${itemId}`, { method: "PUT", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to update lifecycle event in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.swineLifeEvents, itemId, payload);
+        }
+      },
+      async remove(itemId) {
+        try {
+          await apiRequest(`/lifecycle/events/${itemId}`, { method: "DELETE" });
+        } catch (error) {
+          reportClientIssue("Failed to remove lifecycle event in backend. Removing locally.", error);
+        }
+        removeLocalEntity(STORAGE_KEYS.swineLifeEvents, itemId);
+        return true;
+      }
       },
       deaths: {
         async list() {
-          try {
-            return cacheList(STORAGE_KEYS.swineDeaths, toArray(await apiRequest("/lifecycle/deaths")));
-          } catch (error) {
-            reportClientIssue("Failed to load lifecycle deaths.", error, "error");
-            return [];
-          }
-        },
-        async create(payload) {
-          return cacheUpsert(STORAGE_KEYS.swineDeaths, toEntity(await apiRequest("/lifecycle/deaths", { method: "POST", body: payload })), []);
-        },
-        async update(itemId, payload) {
-          return cacheReplace(STORAGE_KEYS.swineDeaths, itemId, toEntity(await apiRequest(`/lifecycle/deaths/${itemId}`, { method: "PUT", body: payload })), []);
-        },
-        async remove(itemId) {
-          await apiRequest(`/lifecycle/deaths/${itemId}`, { method: "DELETE" });
-          cacheRemove(STORAGE_KEYS.swineDeaths, itemId, []);
-          return true;
+        try {
+          return cacheList(STORAGE_KEYS.swineDeaths, toArray(await apiRequest("/lifecycle/deaths")));
+        } catch (error) {
+          reportClientIssue("Failed to load lifecycle deaths.", error, "error");
+          return cacheList(STORAGE_KEYS.swineDeaths, readLocalList(STORAGE_KEYS.swineDeaths));
         }
+      },
+      async create(payload) {
+        try {
+          return cacheUpsert(STORAGE_KEYS.swineDeaths, toEntity(await apiRequest("/lifecycle/deaths", { method: "POST", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to create lifecycle death in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.swineDeaths, payload);
+        }
+      },
+      async update(itemId, payload) {
+        try {
+          return cacheReplace(STORAGE_KEYS.swineDeaths, itemId, toEntity(await apiRequest(`/lifecycle/deaths/${itemId}`, { method: "PUT", body: payload })), []);
+        } catch (error) {
+          reportClientIssue("Failed to update lifecycle death in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.swineDeaths, itemId, payload);
+        }
+      },
+      async remove(itemId) {
+        try {
+          await apiRequest(`/lifecycle/deaths/${itemId}`, { method: "DELETE" });
+        } catch (error) {
+          reportClientIssue("Failed to remove lifecycle death in backend. Removing locally.", error);
+        }
+        removeLocalEntity(STORAGE_KEYS.swineDeaths, itemId);
+        return true;
+      }
       }
     },
 
     assistant: {
       async ask(message) {
-        const payload = await apiRequest("/assistant/messages", {
-          method: "POST",
-          body: { message }
-        });
-        const data = toEntity(payload);
-        const backendAnswer = String(data.answer || data.message || data.text || "").trim();
-        return {
-          answer: backendAnswer || createLocalAssistantAnswer(message),
-          exportFile: data.export || null
-        };
+        try {
+          const payload = await apiRequest("/assistant/messages", {
+            method: "POST",
+            body: { message }
+          });
+          const data = toEntity(payload);
+          const backendAnswer = String(data.answer || data.message || data.text || "").trim();
+          return {
+            answer: backendAnswer || createLocalAssistantAnswer(message),
+            exportFile: data.export || null
+          };
+        } catch (error) {
+          reportClientIssue("Failed to reach assistant backend. Using local answer.", error);
+          return {
+            answer: createLocalAssistantAnswer(message),
+            exportFile: null
+          };
+        }
       }
     },
 
     locations: {
       async list() {
-        return toArray(await apiRequest("/locations"));
+        try {
+          return toArray(await apiRequest("/locations"));
+        } catch (error) {
+          reportClientIssue("Failed to load locations.", error);
+          return [];
+        }
       }
     }
   };
