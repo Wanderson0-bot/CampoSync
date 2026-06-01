@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
   consumptions: "camposync-consumptions",
   sales: "camposync-sales",
   supplies: "camposync-supplies",
-  materials: "camposync-materials",
+  tools: "camposync-tools",
   actions: "camposync-actions",
   swineAnimals: "camposync-swine-animals",
   swineLifeEvents: "camposync-swine-life-events",
@@ -31,7 +31,7 @@ const APP_CACHE = {
   consumptions: [],
   sales: [],
   supplies: [],
-  materials: [],
+  tools: [],
   actions: [],
   auditLogs: [],
   customUnits: [],
@@ -46,7 +46,7 @@ const CACHE_KEY_MAP = {
   [STORAGE_KEYS.consumptions]: "consumptions",
   [STORAGE_KEYS.sales]: "sales",
   [STORAGE_KEYS.supplies]: "supplies",
-  [STORAGE_KEYS.materials]: "materials",
+  [STORAGE_KEYS.tools]: "tools",
   [STORAGE_KEYS.actions]: "actions",
   [STORAGE_KEYS.auditLogs]: "auditLogs",
   [STORAGE_KEYS.customUnits]: "customUnits",
@@ -370,14 +370,14 @@ const UNIT_LABELS = {
   "uso-geral": "Uso geral"
 };
 
-const DEFAULT_MATERIAL_CATEGORIES = [
+const DEFAULT_FERRAMENTA_CATEGORIES = [
   "Equipamento",
   "Ferramenta",
   "Irrigação",
   "Proteção"
 ];
 
-const DEFAULT_MATERIAL_STATUSES = [
+const DEFAULT_FERRAMENTA_STATUSES = [
   "Disponível",
   "Em manutenção",
   "Indisponível"
@@ -580,7 +580,7 @@ function getAssistantSnapshot() {
     consumptions: APP_CACHE.consumptions,
     sales: APP_CACHE.sales,
     supplies: APP_CACHE.supplies,
-    materials: APP_CACHE.materials,
+    tools: APP_CACHE.tools,
     actions: APP_CACHE.actions,
     auditLogs: APP_CACHE.auditLogs,
     swineAnimals: APP_CACHE.swineAnimals,
@@ -616,9 +616,9 @@ function buildAssistantSearchIndex(snapshot) {
       text: normalizeAssistantText(`${item.product} ${item.domain} ${item.notes} estoque ${item.stock}`),
       record: item
     })),
-    ...snapshot.materials.map((item) => ({
-      type: "material",
-      text: normalizeAssistantText(`${item.material} ${item.categoria} ${item.domínio} ${item.status} ${item.observações}`),
+    ...snapshot.tools.map((item) => ({
+      type: "ferramenta",
+      text: normalizeAssistantText(`${item.ferramenta} ${item.categoria} ${item.dominio} ${item.status} ${item.observacoes}`),
       record: item
     })),
     ...snapshot.purchases.map((item) => ({
@@ -681,9 +681,9 @@ function buildAssistantSearchAnswer(result) {
     return `${item.product} aparece em suprimentos com estoque ${formatAssistantCount(item.stock)} e mínimo ${formatAssistantCount(item.minStock)} na categoria ${item.domain}.`;
   }
 
-  if (result.type === "material") {
+  if (result.type === "ferramenta") {
     const item = result.record;
-    return `${item.material} aparece em ferramentas com quantidade ${formatAssistantCount(item.quantidade)}, status ${item.status} e domínio ${item.dominio}.`;
+    return `${item.ferramenta} aparece em ferramentas com quantidade ${formatAssistantCount(item.quantidade)}, status ${item.status} e domínio ${item.dominio}.`;
   }
 
   if (result.type === "purchase") {
@@ -730,7 +730,7 @@ function createSystemSummaryAnswer(snapshot) {
   const lowStockSupplies = snapshot.supplies.filter((item) => Number(item.stock || 0) <= Number(item.minStock || 0));
   const unreadNotifications = snapshot.notifications.filter((item) => !item.read);
 
-  return `Resumo atual do CampoSync: ${formatAssistantCount(snapshot.units.length)} unidades cadastradas, ${formatAssistantCount(snapshot.supplies.length)} suprimentos, ${formatAssistantCount(snapshot.materials.length)} ferramentas, ${formatAssistantCount(snapshot.purchases.length)} compras, ${formatAssistantCount(snapshot.sales.length)} vendas e ${formatAssistantCount(unreadNotifications.length)} alertas não lidos. O total estimado de vendas é ${formatAssistantCurrency(totalSalesValue)} e existem ${formatAssistantCount(lowStockSupplies.length)} itens de suprimentos em nível de atenção.`;
+  return `Resumo atual do CampoSync: ${formatAssistantCount(snapshot.units.length)} unidades cadastradas, ${formatAssistantCount(snapshot.supplies.length)} suprimentos, ${formatAssistantCount(snapshot.tools.length)} ferramentas, ${formatAssistantCount(snapshot.purchases.length)} compras, ${formatAssistantCount(snapshot.sales.length)} vendas e ${formatAssistantCount(unreadNotifications.length)} alertas não lidos. O total estimado de vendas é ${formatAssistantCurrency(totalSalesValue)} e existem ${formatAssistantCount(lowStockSupplies.length)} itens de suprimentos em nível de atenção.`;
 }
 
 function createAlertsAnswer(snapshot) {
@@ -768,11 +768,11 @@ function createSuppliesAnswer(snapshot, text) {
   return `O cadastro de suprimentos tem ${formatAssistantCount(snapshot.supplies.length)} itens, estoque total de ${formatAssistantCount(totalStock)} unidades e ${formatAssistantCount(categories.length)} categorias. Principais itens: ${summarizeAssistantList(snapshot.supplies, (item) => `${item.product} (${formatAssistantCount(item.stock)} em estoque)`, 3)}.`;
 }
 
-function createMaterialsAnswer(snapshot) {
-  const availableMaterials = snapshot.materials.filter((item) => normalizeAssistantText(item.status) === "disponível");
-  const maintenanceMaterials = snapshot.materials.filter((item) => normalizeAssistantText(item.status).includes("manutencao"));
+function createToolsAnswer(snapshot) {
+  const availableTools = snapshot.tools.filter((item) => normalizeAssistantText(item.status) === "disponível");
+  const maintenanceTools = snapshot.tools.filter((item) => normalizeAssistantText(item.status).includes("manutencao"));
 
-  return `Ferramentas cadastradas: ${formatAssistantCount(snapshot.materials.length)}. Disponíveis: ${formatAssistantCount(availableMaterials.length)}. Em manutenção: ${formatAssistantCount(maintenanceMaterials.length)}. Itens em destaque: ${summarizeAssistantList(snapshot.materials, (item) => `${item.material} (${item.status})`, 3)}.`;
+  return `Ferramentas cadastradas: ${formatAssistantCount(snapshot.tools.length)}. Disponíveis: ${formatAssistantCount(availableTools.length)}. Em manutenção: ${formatAssistantCount(maintenanceTools.length)}. Itens em destaque: ${summarizeAssistantList(snapshot.tools, (item) => `${item.ferramenta} (${item.status})`, 3)}.`;
 }
 
 function createPurchasesAnswer(snapshot) {
@@ -840,7 +840,7 @@ function createAssistantCapabilityAnswer() {
 
 function isAssistantSystemQuestion(text, snapshot, searchResults) {
   const systemKeywords = [
-    "estoque", "suprimento", "insumo", "produto", "material", "equipamento", "ferramenta",
+    "estoque", "suprimento", "insumo", "produto", "ferramenta", "equipamento",
     "compra", "compras", "venda", "vendas", "faturamento", "receita", "alerta", "alertas",
     "notificacao", "notificacoes", "historico", "registro", "registros", "acao", "acoes",
     "relatorio", "relatorios", "resumo", "dashboard", "unidade", "unidades", "area", "areas",
@@ -892,8 +892,8 @@ function createLocalAssistantAnswer(message) {
     return createSuppliesAnswer(snapshot, text);
   }
 
-  if (includesAssistantKeyword(text, ["material", "materiais", "equipamento", "equipamentos", "ferramenta", "ferramentas"])) {
-    return createMaterialsAnswer(snapshot);
+  if (includesAssistantKeyword(text, ["ferramenta", "ferramentas", "equipamento", "equipamentos"])) {
+    return createToolsAnswer(snapshot);
   }
 
   if (includesAssistantKeyword(text, ["historico", "registro", "registros", "movimentacao", "acoes", "acao"])) {
@@ -1003,7 +1003,7 @@ function getAuthToken() {
   );
 }
 
-function normalizeMaterialStatus(value = "") {
+function normalizeFerramentaStatus(value = "") {
   const simplified = String(value || "")
     .trim()
     .normalize("NFD")
@@ -1636,40 +1636,40 @@ function createAppServices() {
       }
     },
 
-    materials: {
+    tools: {
       async list() {
         try {
-          return cacheList(STORAGE_KEYS.materials, toArray(await apiRequest("/materials")));
+          return cacheList(STORAGE_KEYS.tools, toArray(await apiRequest("/tools")));
         } catch (error) {
-          reportClientIssue("Failed to load materials.", error, "error");
-          return cacheList(STORAGE_KEYS.materials, readLocalList(STORAGE_KEYS.materials));
+          reportClientIssue("Failed to load tools.", error, "error");
+          return cacheList(STORAGE_KEYS.tools, readLocalList(STORAGE_KEYS.tools));
         }
       },
-      async create(material) {
+      async create(ferramenta) {
         try {
-          return cacheUpsert(STORAGE_KEYS.materials, toEntity(await apiRequest("/materials", { method: "POST", body: material })), []);
+          return cacheUpsert(STORAGE_KEYS.tools, toEntity(await apiRequest("/tools", { method: "POST", body: ferramenta })), []);
         } catch (error) {
-          reportClientIssue("Failed to create material in backend. Saving locally.", error);
-          return createLocalEntity(STORAGE_KEYS.materials, material);
+          reportClientIssue("Failed to create ferramenta in backend. Saving locally.", error);
+          return createLocalEntity(STORAGE_KEYS.tools, ferramenta);
         }
       },
-      async update(materialId, material) {
+      async update(ferramentaId, ferramenta) {
         try {
-          return cacheReplace(STORAGE_KEYS.materials, materialId, toEntity(await apiRequest(`/materials/${materialId}`, { method: "PUT", body: material })), []);
+          return cacheReplace(STORAGE_KEYS.tools, ferramentaId, toEntity(await apiRequest(`/tools/${ferramentaId}`, { method: "PUT", body: ferramenta })), []);
         } catch (error) {
-          reportClientIssue("Failed to update material in backend. Saving locally.", error);
-          return updateLocalEntity(STORAGE_KEYS.materials, materialId, material);
+          reportClientIssue("Failed to update ferramenta in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.tools, ferramentaId, ferramenta);
         }
       },
-      async remove(materialId) {
+      async remove(ferramentaId) {
         try {
-          await apiRequest(`/materials/${materialId}`, { method: "DELETE" });
+          await apiRequest(`/tools/${ferramentaId}`, { method: "DELETE" });
         } catch (error) {
           if (error?.status !== 404) {
-            reportClientIssue("Failed to remove material in backend. Removing locally.", error);
+            reportClientIssue("Failed to remove ferramenta in backend. Removing locally.", error);
           }
         }
-        removeLocalEntity(STORAGE_KEYS.materials, materialId);
+        removeLocalEntity(STORAGE_KEYS.tools, ferramentaId);
         return true;
       }
     },
@@ -1961,7 +1961,7 @@ async function hydrateAppCacheFromBackend() {
     services.sales.list(),
     services.actions.list(),
     services.supplies.list(),
-    services.materials.list(),
+    services.tools.list(),
     services.units.listCustom(),
     services.lifecycle.animals.list(),
     services.lifecycle.events.list(),
@@ -2107,7 +2107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (document.getElementById("formVenda")) tasks.push(setupSalesPage());
   if (document.getElementById("formConsumos")) tasks.push(setupConsumptionsPage());
   if (document.getElementById("formSuprimentos")) tasks.push(setupSuppliesPage());
-  if (document.getElementById("formMateriais")) tasks.push(setupMaterialsPage());
+  if (document.getElementById("formFerramentas")) tasks.push(setupToolsPage());
   if (document.getElementById("corpoTabelaHistorico")) tasks.push(setupHistoryPage());
   if (document.getElementById("perfilNome")) tasks.push(setupProfilePage());
   if (document.querySelector("main[data-unidade]")) tasks.push(setupUnitDashboardPage());
@@ -4937,10 +4937,10 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       .filter((item) => Number(item.stock) <= Number(item.minStock))
       .sort((a, b) => Number(a.stock) - Number(b.stock))[0];
     const latestAction = [...snapshot.actions].sort((a, b) => `${b.data_acao} ${formatActionTime(b.hora_acao)}`.localeCompare(`${a.data_acao} ${formatActionTime(a.hora_acao)}`))[0];
-    const materialsInMaintenance = snapshot.materials.filter((item) => item.status === "Em manutenção");
+    const toolsInMaintenance = snapshot.tools.filter((item) => item.status === "Em manutenção");
 
     heroTag.textContent = unreadNotifications.length ? "Atenção operacional" : "Operação estável";
-    heroText.textContent = `Hoje o CampoSync acompanha ${totalUnits.toLocaleString("pt-BR")} unidades, ${snapshot.supplies.length.toLocaleString("pt-BR")} suprimentos e ${snapshot.materials.length.toLocaleString("pt-BR")} ferramentas com visão centralizada da rotina.`;
+    heroText.textContent = `Hoje o CampoSync acompanha ${totalUnits.toLocaleString("pt-BR")} unidades, ${snapshot.supplies.length.toLocaleString("pt-BR")} suprimentos e ${snapshot.tools.length.toLocaleString("pt-BR")} ferramentas com visão centralizada da rotina.`;
 
     heroList.innerHTML = [
       `${unreadNotifications.length.toLocaleString("pt-BR")} alertas pendentes no painel de notificações.`,
@@ -4959,7 +4959,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       miniUnits.innerHTML = `<strong>${totalUnits}</strong><p>unidades em operação acompanhadas no painel.</p>`;
     }
     if (miniAlerts) {
-      miniAlerts.innerHTML = `<strong>${unreadNotifications.length}</strong><p>alertas não lidos e ${materialsInMaintenance.length} material(is) em manutenção.</p>`;
+      miniAlerts.innerHTML = `<strong>${unreadNotifications.length}</strong><p>alertas não lidos e ${toolsInMaintenance.length} ferramenta(is) em manutenção.</p>`;
     }
     if (miniRevenue) {
       miniRevenue.innerHTML = `<strong>${formatCurrency(totalRevenue)}</strong><p>faturamento consolidado a partir das vendas registradas.</p>`;
@@ -5879,7 +5879,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     const respostasLocais = [
       {
-        chaves: ["estoque", "material", "insumo", "produto"],
+        chaves: ["estoque", "ferramenta", "insumo", "produto"],
         texto: "Para verificar estoque, acesse a área de Ferramentas e filtre por unidade, item ou quantidade mínima. Se quiser, posso te orientar a montar uma consulta mais objetiva."
       },
       {
@@ -7873,36 +7873,36 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
   }
 
   /* ==============================
-     PAGINA: MATERIAIS
+     PAGINA: FERRAMENTAS
   ============================== */
-  async function setupMaterialsPage() {
-    const formMaterials = document.getElementById("formMateriais");
-    const tableBody = document.getElementById("corpoTabelaMateriais");
-    const searchInput = document.getElementById("buscaMaterial");
-    const materialCategoryField = document.getElementById("categoriaMaterial");
-    const materialStatusField = document.getElementById("filtroStatus");
+  async function setupToolsPage() {
+    const formTools = document.getElementById("formFerramentas");
+    const tableBody = document.getElementById("corpoTabelaFerramentas");
+    const searchInput = document.getElementById("buscaFerramenta");
+    const ferramentaCategoryField = document.getElementById("categoriaFerramenta");
+    const ferramentaStatusField = document.getElementById("filtroStatus");
     const categoryFilter = document.getElementById("filtroCategoriaBusca");
     const statusFilter = document.getElementById("filtroStatusBusca");
     const btnFiltrar = document.getElementById("btnFiltrar");
     const btnLimpar = document.getElementById("btnLimpar");
-    const totalMateriais = document.getElementById("totalMateriais");
-    const materiaisManutencao = document.getElementById("materiaisManutencao");
-    const materiaisDisponiveis = document.getElementById("materiaisDisponiveis");
-    const resumoMateriaisPainel = document.getElementById("resumoMateriaisPainel");
-    const feedback = formMaterials?.querySelector(".retorno-form");
+    const totalFerramentas = document.getElementById("totalFerramentas");
+    const ferramentasManutencao = document.getElementById("ferramentasManutencao");
+    const ferramentasDisponiveis = document.getElementById("ferramentasDisponiveis");
+    const resumoFerramentasPainel = document.getElementById("resumoFerramentasPainel");
+    const feedback = formTools?.querySelector(".retorno-form");
 
-    if (!formMaterials || !tableBody || !searchInput || !categoryFilter || !statusFilter) {
+    if (!formTools || !tableBody || !searchInput || !categoryFilter || !statusFilter) {
       return;
     }
 
-    function normalizeMaterialRecord(item) {
+    function normalizeFerramentaRecord(item) {
       return {
         ...item,
-        status: normalizeMaterialStatus(item.status)
+        status: normalizeFerramentaStatus(item.status)
       };
     }
 
-    let materials = (await services.materials.list()).map(normalizeMaterialRecord);
+    let tools = (await services.tools.list()).map(normalizeFerramentaRecord);
 
     /* =========================================
        RENDERIZAR CATEGORIAS
@@ -7910,8 +7910,8 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     function renderCategoryFilter() {
       const categorias = [
         ...new Set([
-          ...DEFAULT_MATERIAL_CATEGORIES,
-          ...materials.map((item) =>
+          ...DEFAULT_FERRAMENTA_CATEGORIES,
+          ...tools.map((item) =>
             String(item.categoria || "").trim()
           )
         ])
@@ -7922,7 +7922,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           label: categoria
         }));
 
-      renderSelectOptions(materialCategoryField, {
+      renderSelectOptions(ferramentaCategoryField, {
         placeholderLabel: "Selecione",
         placeholderValue: "",
         options: categorias
@@ -7936,9 +7936,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
       const statuses = [
         ...new Set([
-          ...DEFAULT_MATERIAL_STATUSES,
-          ...materials.map((item) =>
-            normalizeMaterialStatus(item.status)
+          ...DEFAULT_FERRAMENTA_STATUSES,
+          ...tools.map((item) =>
+            normalizeFerramentaStatus(item.status)
           )
         ])
       ]
@@ -7948,7 +7948,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           label: status
         }));
 
-      renderSelectOptions(materialStatusField, {
+      renderSelectOptions(ferramentaStatusField, {
         placeholderLabel: "Selecione",
         placeholderValue: "",
         options: statuses
@@ -7961,9 +7961,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       });
     }
 
-    const submitButton = formMaterials.querySelector('button[type="submit"]');
-    const resetButton = formMaterials.querySelector('button[type="reset"]');
-    let editingMaterialId = null;
+    const submitButton = formTools.querySelector('button[type="submit"]');
+    const resetButton = formTools.querySelector('button[type="reset"]');
+    let editingFerramentaId = null;
     let suppressResetFeedback = false;
 
     function setFeedback(message = "", type = "") {
@@ -7973,62 +7973,62 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       feedback.dataset.state = type;
     }
 
-    function setEditMode(material = null) {
-      editingMaterialId = material?.id || null;
+    function setEditMode(ferramenta = null) {
+      editingFerramentaId = ferramenta?.id || null;
       if (submitButton) {
-        submitButton.textContent = material ? "Atualizar ferramenta" : "Salvar ferramenta";
+        submitButton.textContent = ferramenta ? "Atualizar ferramenta" : "Salvar ferramenta";
       }
       if (resetButton) {
-        resetButton.textContent = material ? "Cancelar" : "Limpar";
+        resetButton.textContent = ferramenta ? "Cancelar" : "Limpar";
       }
-      if (!material) {
+      if (!ferramenta) {
         return;
       }
 
-      formMaterials.elements.material.value = material.material || "";
-      formMaterials.elements.quantidade.value = material.quantidade || "";
-      formMaterials.elements.categoria.value = material.categoria || "";
-      formMaterials.elements.status.value = material.status || "";
-      formMaterials.elements.dominio.value = material.dominio || "";
-      formMaterials.elements.ultima_inspecao.value = material.ultima_inspecao || "";
-      formMaterials.elements.observacoes.value = material.observacoes || "";
+      formTools.elements.ferramenta.value = ferramenta.ferramenta || "";
+      formTools.elements.quantidade.value = ferramenta.quantidade || "";
+      formTools.elements.categoria.value = ferramenta.categoria || "";
+      formTools.elements.status.value = ferramenta.status || "";
+      formTools.elements.dominio.value = ferramenta.dominio || "";
+      formTools.elements.ultima_inspecao.value = ferramenta.ultima_inspecao || "";
+      formTools.elements.observacoes.value = ferramenta.observacoes || "";
       setFeedback("Modo de edição ativado. Atualize status ou última inspeção e salve.", "info");
     }
 
     function updateSummary() {
-      const total = materials.reduce(
+      const total = tools.reduce(
         (sum, item) => sum + Number(item.quantidade || 0),
         0
       );
 
-      const maintenance = materials
+      const maintenance = tools
         .filter((item) => item.status === "Em manutenção")
         .reduce(
           (sum, item) => sum + Number(item.quantidade || 0),
           0
         );
 
-      const available = materials
+      const available = tools
         .filter((item) => item.status === "Disponível")
         .reduce(
           (sum, item) => sum + Number(item.quantidade || 0),
           0
         );
 
-      if (totalMateriais) {
-        totalMateriais.textContent = String(total);
+      if (totalFerramentas) {
+        totalFerramentas.textContent = String(total);
       }
 
-      if (materiaisManutencao) {
-        materiaisManutencao.textContent = String(maintenance);
+      if (ferramentasManutencao) {
+        ferramentasManutencao.textContent = String(maintenance);
       }
 
-      if (materiaisDisponiveis) {
-        materiaisDisponiveis.textContent = String(available);
+      if (ferramentasDisponiveis) {
+        ferramentasDisponiveis.textContent = String(available);
       }
     }
 
-    function getFilteredMaterials() {
+    function getFilteredTools() {
       const term = searchInput.value
         .trim()
         .toLowerCase();
@@ -8036,10 +8036,10 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       const category = categoryFilter.value;
       const status = statusFilter.value;
 
-      return materials.filter((item) => {
+      return tools.filter((item) => {
 
         const matchesTerm = [
-          item.material,
+          item.ferramenta,
           item.dominio,
           item.observacoes
         ].some((value) =>
@@ -8064,28 +8064,28 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       });
     }
 
-    function renderMaterials() {
+    function renderTools() {
 
       // AQUI
       renderCategoryFilter();
 
-      const filteredMaterials = getFilteredMaterials();
+      const filteredTools = getFilteredTools();
 
-      if (!filteredMaterials.length) {
+      if (!filteredTools.length) {
         tableBody.innerHTML = `
         <tr>
           <td colspan="7" class="linha-vazia">
-            Nenhum material encontrado com os filtros atuais.
+            Nenhuma ferramenta encontrada com os filtros atuais.
           </td>
         </tr>
       `;
         return;
       }
 
-      tableBody.innerHTML = filteredMaterials.map((item) => `
+      tableBody.innerHTML = filteredTools.map((item) => `
       <tr>
         <td>
-          <strong>${escapeHtml(item.material)}</strong>
+          <strong>${escapeHtml(item.ferramenta)}</strong>
           <small>
             ${escapeHtml(item.observacoes || "Sem observações")}
           </small>
@@ -8130,9 +8130,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     }
 
     function renderPanelSummary() {
-      if (!resumoMateriaisPainel) return;
+      if (!resumoFerramentasPainel) return;
 
-      const maintenanceItems = materials
+      const maintenanceItems = tools
         .filter((item) =>
           item.status === "Em manutenção" ||
           item.status === "Indisponível"
@@ -8146,19 +8146,19 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         .slice(0, 3);
 
       if (!maintenanceItems.length) {
-        resumoMateriaisPainel.innerHTML = `
+        resumoFerramentasPainel.innerHTML = `
         <p class="estado-vazio">
-          Nenhum material com manutenção pendente no momento.
+          Nenhuma ferramenta com manutenção pendente no momento.
         </p>
       `;
         return;
       }
 
-      resumoMateriaisPainel.innerHTML = maintenanceItems.map((item) => `
+      resumoFerramentasPainel.innerHTML = maintenanceItems.map((item) => `
       <article class="item-critico">
         <div>
           <strong>
-            ${escapeHtml(item.material)}
+            ${escapeHtml(item.ferramenta)}
           </strong>
 
           <span>
@@ -8186,25 +8186,25 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     `).join("");
     }
 
-    async function refreshMaterials() {
-      materials = (await services.materials.list())
-        .map(normalizeMaterialRecord);
+    async function refreshTools() {
+      tools = (await services.tools.list())
+        .map(normalizeFerramentaRecord);
 
       updateSummary();
-      renderMaterials();
+      renderTools();
       renderPanelSummary();
     }
 
-    formMaterials.addEventListener("submit", async (event) => {
+    formTools.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       setFeedback("", "");
 
-      const formData = new FormData(formMaterials);
+      const formData = new FormData(formTools);
 
-      const material = {
-        material: String(
-          formData.get("material") || ""
+      const ferramenta = {
+        ferramenta: String(
+          formData.get("ferramenta") || ""
         ).trim(),
 
         categoria: String(
@@ -8215,7 +8215,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           formData.get("quantidade") || 0
         ),
 
-        status: normalizeMaterialStatus(
+        status: normalizeFerramentaStatus(
           formData.get("status")
         ),
 
@@ -8233,81 +8233,81 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       };
 
       if (
-        !material.material ||
-        !material.categoria ||
-        !material.status ||
-        material.quantidade <= 0
+        !ferramenta.ferramenta ||
+        !ferramenta.categoria ||
+        !ferramenta.status ||
+        ferramenta.quantidade <= 0
       ) {
         setFeedback(
-          "Preencha material, categoria, quantidade e status com valores válidos.",
+          "Preencha ferramenta, categoria, quantidade e status com valores válidos.",
           "error"
         );
         return;
       }
 
       try {
-        const savedMaterial = editingMaterialId
-          ? await services.materials.update(editingMaterialId, material)
-          : await services.materials.create(material);
+        const savedFerramenta = editingFerramentaId
+          ? await services.tools.update(editingFerramentaId, ferramenta)
+          : await services.tools.create(ferramenta);
 
-        if (editingMaterialId) {
-          materials = materials.map((item) => (
-            String(item.id) === String(savedMaterial.id)
-              ? { ...savedMaterial, status: normalizeMaterialStatus(savedMaterial.status) }
+        if (editingFerramentaId) {
+          tools = tools.map((item) => (
+            String(item.id) === String(savedFerramenta.id)
+              ? { ...savedFerramenta, status: normalizeFerramentaStatus(savedFerramenta.status) }
               : item
           ));
         } else {
-          materials = [
+          tools = [
             {
-              ...savedMaterial,
-              status: normalizeMaterialStatus(savedMaterial.status)
+              ...savedFerramenta,
+              status: normalizeFerramentaStatus(savedFerramenta.status)
             },
-            ...materials
+            ...tools
           ];
         }
 
         await registerAuditLog({
-          type: "Materiais",
-          title: editingMaterialId ? "Material atualizado" : "Material registrado",
-          details: editingMaterialId
-            ? `${material.material} atualizado para status ${material.status}.`
-            : `${material.material} registrado com status ${material.status}.`,
-          area: material.dominio || material.categoria,
+          type: "Ferramentas",
+          title: editingFerramentaId ? "Ferramenta atualizada" : "Ferramenta registrada",
+          details: editingFerramentaId
+            ? `${ferramenta.ferramenta} atualizado para status ${ferramenta.status}.`
+            : `${ferramenta.ferramenta} registrado com status ${ferramenta.status}.`,
+          area: ferramenta.dominio || ferramenta.categoria,
           status: "Concluído",
-          entityType: "material",
-          entityId: savedMaterial?.id,
-          metadata: material
+          entityType: "ferramenta",
+          entityId: savedFerramenta?.id,
+          metadata: ferramenta
         });
 
         suppressResetFeedback = true;
-        formMaterials.reset();
+        formTools.reset();
         setEditMode(null);
 
         categoryFilter.value = "todos";
         statusFilter.value = "todos";
 
         setFeedback(
-          editingMaterialId
-            ? "Material atualizado com sucesso."
-            : "Material registrado com sucesso.",
+          editingFerramentaId
+            ? "Ferramenta atualizada com sucesso."
+            : "Ferramenta registrada com sucesso.",
           "success"
         );
 
         updateSummary();
-        renderMaterials();
+        renderTools();
         renderPanelSummary();
 
       } catch (error) {
 
         setFeedback(
           error?.message ||
-          "Não foi possível salvar o material agora.",
+          "Não foi possível salvar a ferramenta agora.",
           "error"
         );
       }
     });
 
-    formMaterials.addEventListener("reset", () => {
+    formTools.addEventListener("reset", () => {
       window.setTimeout(() => {
         setEditMode(null);
         if (!suppressResetFeedback) {
@@ -8319,7 +8319,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     btnFiltrar?.addEventListener(
       "click",
-      renderMaterials
+      renderTools
     );
 
     btnLimpar?.addEventListener("click", () => {
@@ -8328,22 +8328,22 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       categoryFilter.value = "todos";
       statusFilter.value = "todos";
 
-      renderMaterials();
+      renderTools();
     });
 
     searchInput.addEventListener(
       "input",
-      renderMaterials
+      renderTools
     );
 
     categoryFilter.addEventListener(
       "change",
-      renderMaterials
+      renderTools
     );
 
     statusFilter.addEventListener(
       "change",
-      renderMaterials
+      renderTools
     );
 
     tableBody.addEventListener("click", async (event) => {
@@ -8352,41 +8352,41 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       const deleteButton = target.closest("button.btn-excluir");
 
       if (editButton) {
-        const materialId = editButton.dataset.id;
-        const material = materials.find((item) => String(item.id) === String(materialId));
-        if (!material) {
+        const ferramentaId = editButton.dataset.id;
+        const ferramenta = tools.find((item) => String(item.id) === String(ferramentaId));
+        if (!ferramenta) {
           setFeedback("Ferramenta não encontrada.", "error");
           return;
         }
 
-        setEditMode(material);
+        setEditMode(ferramenta);
         return;
       }
 
       if (deleteButton) {
-        const materialId = deleteButton.dataset.id;
-        const material = materials.find((item) => String(item.id) === String(materialId));
-        if (!material) {
+        const ferramentaId = deleteButton.dataset.id;
+        const ferramenta = tools.find((item) => String(item.id) === String(ferramentaId));
+        if (!ferramenta) {
           setFeedback("Ferramenta não encontrada.", "error");
           return;
         }
 
         const confirmation = window.confirm(
-          `Excluir a ferramenta ${material.material}? Essa ação não pode ser desfeita.`
+          `Excluir a ferramenta ${ferramenta.ferramenta}? Essa ação não pode ser desfeita.`
         );
         if (!confirmation) {
           return;
         }
 
         try {
-          await services.materials.remove(materialId);
-          materials = materials.filter((item) => String(item.id) !== String(materialId));
-          if (editingMaterialId && String(editingMaterialId) === String(materialId)) {
+          await services.tools.remove(ferramentaId);
+          tools = tools.filter((item) => String(item.id) !== String(ferramentaId));
+          if (editingFerramentaId && String(editingFerramentaId) === String(ferramentaId)) {
             setEditMode(null);
-            formMaterials.reset();
+            formTools.reset();
           }
           updateSummary();
-          renderMaterials();
+          renderTools();
           renderPanelSummary();
           setFeedback("Ferramenta excluída com sucesso.", "success");
         } catch (error) {
@@ -8396,12 +8396,12 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     });
 
     updateSummary();
-    renderMaterials();
+    renderTools();
     renderPanelSummary();
 
     startRealtimeRefresh(
-      refreshMaterials,
-      "materiais"
+      refreshTools,
+      "ferramentas"
     );
   }
 
@@ -8553,14 +8553,14 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       return;
     }
 
-    const [auditLogs, purchases, consumptions, sales, actions, notifications, materials] = await Promise.all([
+    const [auditLogs, purchases, consumptions, sales, actions, notifications, tools] = await Promise.all([
       services.auditLogs.list(),
       services.purchases.list(),
       services.consumptions.list(),
       services.sales.list(),
       services.actions.list(),
       services.notifications.list(),
-      services.materials.list()
+      services.tools.list()
     ]);
     const session = readAuthSession();
 
@@ -8616,15 +8616,15 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         title: item.title,
         details: item.message
       })),
-      ...materials.map((item) => ({
-        type: "Materiais",
+      ...tools.map((item) => ({
+        type: "Ferramentas",
         user: item.createdBy || item.updatedBy || session?.email || "Sistema",
         area: item.dominio || item.categoria,
         date: item.ultima_inspecao || today,
         time: String(item.createdAt || "").slice(11, 16),
         status: item.status,
-        title: item.material,
-        details: item.observacoes || "Material atualizado."
+        title: item.ferramenta,
+        details: item.observacoes || "Ferramenta atualizada."
       }))
     ];
 

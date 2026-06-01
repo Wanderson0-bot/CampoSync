@@ -132,7 +132,7 @@
                         <img src="https://img.icons8.com/?size=100&id=20544&format=png&color=000000" alt="" width="30">
                     </div>
                     <h3>Ferramentas cadastradas</h3>
-                    <p id="totalMateriais">0</p>
+                    <p id="totalFerramentas">0</p>
                 </div>
                 <div class="card-info">
                     <div class="icone-card" aria-hidden="true">
@@ -140,7 +140,7 @@
                             width="30">
                     </div>
                     <h3>Indisponíveis</h3>
-                    <p id="materiaisManutencao">0</p>
+                    <p id="ferramentasManutencao">0</p>
                 </div>
                 <div class="card-info">
                     <div class="icone-card" aria-hidden="true">
@@ -148,7 +148,7 @@
                             width="30">
                     </div>
                     <h3>Disponíveis</h3>
-                    <p id="materiaisDisponiveis">0</p>
+                    <p id="ferramentasDisponiveis">0</p>
                 </div>
             </section>
 
@@ -162,11 +162,11 @@
                         <span class="tag-secao">Patrimônio</span>
                     </div>
 
-                    <form class="form-compra" id="formMateriais">
+                    <form class="form-compra" id="formFerramentas">
                         <div class="grade-campos">
                             <label>
                                 Ferramenta
-                                <input type="text" name="material" placeholder="Ex.: Pulverizador costal" required>
+                                <input type="text" name="ferramenta" placeholder="Ex.: Pulverizador costal" required>
                             </label>
 
                             <label>
@@ -176,7 +176,7 @@
 
                             <label>
                                 Categoria
-                                <select id="categoriaMaterial" name="categoria" required>
+                                <select id="categoriaFerramenta" name="categoria" required>
                                     <option value="">Selecione</option>
                                 </select>
                             </label>
@@ -223,7 +223,7 @@
                         <span class="tag-secao">Acompanhamento</span>
                     </div>
 
-                    <div class="lista-critica" id="resumoMateriaisPainel">
+                    <div class="lista-critica" id="resumoFerramentasPainel">
                         <article class="item-critico">
                             <div>
                                 <strong>Próxima revisão</strong>
@@ -249,8 +249,8 @@
 
                 <div class="barra-ferramentas">
                     <div class="search-input-group">
-                        <label class="apenas-leitor" for="buscaMaterial">Buscar ferramenta</label>
-                        <input type="search" id="buscaMaterial" placeholder="Buscar ferramenta, domínio ou observações">
+                        <label class="apenas-leitor" for="buscaFerramenta">Buscar ferramenta</label>
+                        <input type="search" id="buscaFerramenta" placeholder="Buscar ferramenta, domínio ou observações">
                         <button type="button" class="search-trigger" aria-label="Buscar ferramenta"></button>
                     </div>
 
@@ -283,7 +283,7 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="corpoTabelaMateriais">
+                    <tbody id="corpoTabelaFerramentas">
                         <tr>
                             <td colspan="7" class="linha-vazia">Nenhuma ferramenta disponível no momento.</td>
                         </tr>

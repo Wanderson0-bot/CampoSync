@@ -10,7 +10,7 @@ const router = express.Router();
 
 const DOMAIN_KEYWORDS = [
   'camposync', 'estoque', 'historico', 'histórico', 'acao', 'ação', 'acoes', 'ações',
-  'compra', 'compras', 'venda', 'vendas', 'consumo', 'consumos', 'material', 'materiais',
+  'compra', 'compras', 'venda', 'vendas', 'consumo', 'consumos', 'ferramenta', 'ferramentas',
   'suprimento', 'suprimentos', 'area', 'área', 'areas', 'áreas', 'produtiva', 'produtivas',
   'financeiro', 'financeira', 'gasto', 'gastos', 'receita', 'saldo', 'lucro', 'grafico',
   'gráfico', 'graficos', 'gráficos', 'registro', 'registros', 'alerta', 'alertas',
@@ -216,7 +216,7 @@ function buildReferenceTerms(snapshot) {
     ...snapshot.purchases.map((item) => item.category),
     ...snapshot.sales.map((item) => item.categoria),
     ...snapshot.consumptions.map((item) => item.categoria),
-    ...snapshot.materials.map((item) => item.categoria),
+    ...snapshot.tools.map((item) => item.categoria),
     ...snapshot.supplies.map((item) => item.domain),
     ...snapshot.actions.map((item) => item.unidade),
     ...snapshot.customUnits.map((item) => item.name || item.nome || item.slug || item.pageSlug),
@@ -278,7 +278,7 @@ async function loadAssistantSnapshot() {
     consumptions,
     sales,
     supplies,
-    materials,
+    tools,
     actions,
     customUnits,
     locations,
@@ -292,7 +292,7 @@ async function loadAssistantSnapshot() {
     db.list('consumptions'),
     db.list('sales'),
     db.list('supplies'),
-    db.list('materials'),
+    db.list('tools'),
     db.list('actions'),
     db.list('customUnits'),
     db.list('locations'),
@@ -303,7 +303,7 @@ async function loadAssistantSnapshot() {
 
   const unreadNotifications = notifications.filter((item) => !item.read);
   const lowStockSupplies = supplies.filter((item) => Number(item.stock || 0) <= Number(item.minStock || 0));
-  const unavailableMaterials = materials.filter((item) => normalizeText(item.status) !== 'disponivel');
+  const unavailableTools = tools.filter((item) => normalizeText(item.status) !== 'disponivel');
   const purchaseTotal = sumBy(purchases, (item) => Number(item.quantity || 0) * Number(item.unitPrice || 0));
   const salesTotal = sumBy(sales, (item) => Number(item.quantidade || 0) * Number(item.valor_unitario || 0));
   const consumptionTotal = sumBy(consumptions, (item) => Number(item.estimatedCost || 0));
@@ -341,8 +341,8 @@ async function loadAssistantSnapshot() {
     sales,
     supplies,
     lowStockSupplies,
-    materials,
-    unavailableMaterials,
+    tools,
+    unavailableTools,
     actions,
     customUnits,
     locations,
@@ -358,7 +358,7 @@ async function loadAssistantSnapshot() {
     salesByCategory: groupTotals(sales, (item) => item.categoria, (item) => Number(item.quantidade || 0) * Number(item.valor_unitario || 0)),
     consumptionsByCategory: groupTotals(consumptions, (item) => item.categoria, (item) => Number(item.estimatedCost || 0)),
     suppliesByDomain: groupTotals(supplies, (item) => item.domain, (item) => Number(item.stock || 0)),
-    materialsByCategory: groupTotals(materials, (item) => item.categoria, () => 1)
+    toolsByCategory: groupTotals(tools, (item) => item.categoria, () => 1)
   };
 }
 
@@ -367,7 +367,7 @@ function createFilteredSnapshot(snapshot, filters = {}) {
   const consumptions = applyFilters(snapshot.consumptions, filters);
   const sales = applyFilters(snapshot.sales, filters);
   const supplies = applyFilters(snapshot.supplies, filters);
-  const materials = applyFilters(snapshot.materials, filters);
+  const tools = applyFilters(snapshot.tools, filters);
   const actions = applyFilters(snapshot.actions, filters);
   const customUnits = applyFilters(snapshot.customUnits, filters);
   const locations = applyFilters(snapshot.locations, filters);
@@ -379,7 +379,7 @@ function createFilteredSnapshot(snapshot, filters = {}) {
 
   const unreadNotifications = notifications.filter((item) => !item.read);
   const lowStockSupplies = supplies.filter((item) => Number(item.stock || 0) <= Number(item.minStock || 0));
-  const unavailableMaterials = materials.filter((item) => normalizeText(item.status) !== 'disponivel');
+  const unavailableTools = tools.filter((item) => normalizeText(item.status) !== 'disponivel');
   const purchaseTotal = sumBy(purchases, (item) => Number(item.quantity || 0) * Number(item.unitPrice || 0));
   const salesTotal = sumBy(sales, (item) => Number(item.quantidade || 0) * Number(item.valor_unitario || 0));
   const consumptionTotal = sumBy(consumptions, (item) => Number(item.estimatedCost || 0));
@@ -414,7 +414,7 @@ function createFilteredSnapshot(snapshot, filters = {}) {
     consumptions,
     sales,
     supplies,
-    materials,
+    tools,
     actions,
     customUnits,
     locations,
@@ -425,7 +425,7 @@ function createFilteredSnapshot(snapshot, filters = {}) {
     lifecycleDeaths,
     unreadNotifications,
     lowStockSupplies,
-    unavailableMaterials,
+    unavailableTools,
     purchaseTotal,
     salesTotal,
     consumptionTotal,
@@ -435,7 +435,7 @@ function createFilteredSnapshot(snapshot, filters = {}) {
     salesByCategory: groupTotals(sales, (item) => item.categoria, (item) => Number(item.quantidade || 0) * Number(item.valor_unitario || 0)),
     consumptionsByCategory: groupTotals(consumptions, (item) => item.categoria, (item) => Number(item.estimatedCost || 0)),
     suppliesByDomain: groupTotals(supplies, (item) => item.domain, (item) => Number(item.stock || 0)),
-    materialsByCategory: groupTotals(materials, (item) => item.categoria, () => 1)
+    toolsByCategory: groupTotals(tools, (item) => item.categoria, () => 1)
   };
 }
 
@@ -449,7 +449,7 @@ function detectRequestedTopics(text) {
   if (includesAny(normalized, ['compra', 'compras'])) topics.push('purchases');
   if (includesAny(normalized, ['venda', 'vendas'])) topics.push('sales');
   if (includesAny(normalized, ['consumo', 'consumos'])) topics.push('consumptions');
-  if (includesAny(normalized, ['material', 'materiais'])) topics.push('materials');
+  if (includesAny(normalized, ['ferramenta', 'ferramentas'])) topics.push('tools');
   if (includesAny(normalized, ['area produtiva', 'areas produtivas', 'unidade', 'unidades', 'localizacao', 'localizacoes'])) topics.push('areas');
   if (includesAny(normalized, ['financeiro', 'financeira', 'gasto', 'gastos', 'receita', 'saldo', 'lucro'])) topics.push('financial');
   if (includesAny(normalized, ['grafico', 'graficos', 'indicador', 'indicadores', 'dashboard', 'painel'])) topics.push('charts');
@@ -483,7 +483,7 @@ function buildOverview(snapshot) {
   return [
     'Visão geral do CampoSync:',
     `${formatNumber(snapshot.supplies.length)} suprimentos cadastrados, com ${formatNumber(snapshot.lowStockSupplies.length)} em estoque baixo.`,
-    `${formatNumber(snapshot.materials.length)} ferramentas e ${formatNumber(snapshot.unavailableMaterials.length)} fora de disponibilidade.`,
+    `${formatNumber(snapshot.tools.length)} ferramentas e ${formatNumber(snapshot.unavailableTools.length)} fora de disponibilidade.`,
     `${formatNumber(snapshot.actions.length)} ações registradas e ${formatNumber(snapshot.unreadNotifications.length)} alertas não lidos.`,
     `${formatNumber(snapshot.customUnits.length)} áreas produtivas customizadas e ${formatNumber(snapshot.locations.length)} localizações cadastradas.`,
     `Financeiro atual: receitas em ${formatCurrency(snapshot.salesTotal)}, compras em ${formatCurrency(snapshot.purchaseTotal)}, consumos em ${formatCurrency(snapshot.consumptionTotal)} e saldo de ${formatCurrency(snapshot.financialBalance)}.`
@@ -550,12 +550,12 @@ function buildConsumptionsAnswer(snapshot) {
   return `Consumos: ${formatNumber(snapshot.consumptions.length)} registros, custo estimado acumulado de ${formatCurrency(snapshot.consumptionTotal)}. Destaques por categoria: ${topCategories}.`;
 }
 
-function buildMaterialsAnswer(snapshot) {
-  const topCategories = snapshot.materialsByCategory.length
-    ? snapshot.materialsByCategory.map(([category, total]) => `${category}: ${formatNumber(total)}`).join('; ')
+function buildToolsAnswer(snapshot) {
+  const topCategories = snapshot.toolsByCategory.length
+    ? snapshot.toolsByCategory.map(([category, total]) => `${category}: ${formatNumber(total)}`).join('; ')
     : 'sem categorias de ferramentas registradas.';
 
-  return `Ferramentas: ${formatNumber(snapshot.materials.length)} itens cadastrados, com ${formatNumber(snapshot.unavailableMaterials.length)} marcados como indisponíveis ou em manutenção. Categorias com mais registros: ${topCategories}.`;
+  return `Ferramentas: ${formatNumber(snapshot.tools.length)} itens cadastrados, com ${formatNumber(snapshot.unavailableTools.length)} marcados como indisponíveis ou em manutenção. Categorias com mais registros: ${topCategories}.`;
 }
 
 function buildAreasAnswer(snapshot) {
@@ -574,7 +574,7 @@ function buildChartsAnswer(snapshot) {
     `receita ${formatCurrency(snapshot.salesTotal)}`,
     `compras ${formatCurrency(snapshot.purchaseTotal)}`,
     `consumos ${formatCurrency(snapshot.consumptionTotal)}`,
-    `materiais indisponíveis ${formatNumber(snapshot.unavailableMaterials.length)}`
+    `ferramentas indisponíveis ${formatNumber(snapshot.unavailableTools.length)}`
   ].join(', ') + '.';
 }
 
@@ -606,7 +606,7 @@ function buildOverviewReport(snapshot) {
     buildReportHeader('panorama do CampoSync'),
     `Suprimentos cadastrados: ${formatNumber(snapshot.supplies.length)}.`,
     `Estoque em atenção: ${formatNumber(snapshot.lowStockSupplies.length)} item(ns).`,
-    `Materiais cadastrados: ${formatNumber(snapshot.materials.length)}, sendo ${formatNumber(snapshot.unavailableMaterials.length)} indisponíveis ou em manutenção.`,
+    `Ferramentas cadastradas: ${formatNumber(snapshot.tools.length)}, sendo ${formatNumber(snapshot.unavailableTools.length)} indisponíveis ou em manutenção.`,
     `Ações registradas: ${formatNumber(snapshot.actions.length)}.`,
     `Alertas não lidos: ${formatNumber(snapshot.unreadNotifications.length)}.`,
     `Áreas produtivas customizadas: ${formatNumber(snapshot.customUnits.length)}.`,
@@ -618,8 +618,8 @@ function buildOverviewReportLines(snapshot) {
   return [
     `Suprimentos cadastrados: ${formatNumber(snapshot.supplies.length)}`,
     `Estoque em atenção: ${formatNumber(snapshot.lowStockSupplies.length)}`,
-    `Materiais cadastrados: ${formatNumber(snapshot.materials.length)}`,
-    `Materiais indisponíveis ou em manutenção: ${formatNumber(snapshot.unavailableMaterials.length)}`,
+    `Ferramentas cadastradas: ${formatNumber(snapshot.tools.length)}`,
+    `Ferramentas indisponíveis ou em manutenção: ${formatNumber(snapshot.unavailableTools.length)}`,
     `Ações registradas: ${formatNumber(snapshot.actions.length)}`,
     `Alertas não lidos: ${formatNumber(snapshot.unreadNotifications.length)}`,
     `Áreas produtivas customizadas: ${formatNumber(snapshot.customUnits.length)}`,
@@ -732,36 +732,36 @@ function buildConsumptionsReportLines(snapshot) {
   return lines;
 }
 
-function buildMaterialsReport(snapshot) {
-  const latestMaterials = snapshot.materials
+function buildToolsReport(snapshot) {
+  const latestTools = snapshot.tools
     .slice()
     .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')))
     .slice(0, 3)
-    .map((item) => `${item.material} em ${item.categoria}: ${formatNumber(item.quantidade)} unidade(s), status ${item.status || 'não informado'}`);
+    .map((item) => `${item.ferramenta} em ${item.categoria}: ${formatNumber(item.quantidade)} unidade(s), status ${item.status || 'não informado'}`);
 
   return [
     buildReportHeader('ferramentas'),
-    `Total de ferramentas cadastradas: ${formatNumber(snapshot.materials.length)}.`,
-    `Ferramentas indisponíveis ou em manutenção: ${formatNumber(snapshot.unavailableMaterials.length)}.`,
-    `Categorias com mais registros: ${snapshot.materialsByCategory.length ? snapshot.materialsByCategory.map(([category, total]) => `${category} com ${formatNumber(total)} item(ns)`).join('; ') : 'sem categorias registradas'}.`,
-    latestMaterials.length ? `Últimos materiais atualizados: ${latestMaterials.join('; ')}.` : 'Ainda não há ferramentas registradas.'
+    `Total de ferramentas cadastradas: ${formatNumber(snapshot.tools.length)}.`,
+    `Ferramentas indisponíveis ou em manutenção: ${formatNumber(snapshot.unavailableTools.length)}.`,
+    `Categorias com mais registros: ${snapshot.toolsByCategory.length ? snapshot.toolsByCategory.map(([category, total]) => `${category} com ${formatNumber(total)} item(ns)`).join('; ') : 'sem categorias registradas'}.`,
+    latestTools.length ? `Últimas ferramentas atualizadas: ${latestTools.join('; ')}.` : 'Ainda não há ferramentas registradas.'
   ].join(' ');
 }
 
-function buildMaterialsReportLines(snapshot) {
+function buildToolsReportLines(snapshot) {
   const lines = [
-    `Total de ferramentas cadastradas: ${formatNumber(snapshot.materials.length)}`,
-    `Ferramentas indisponíveis ou em manutenção: ${formatNumber(snapshot.unavailableMaterials.length)}`
+    `Total de ferramentas cadastradas: ${formatNumber(snapshot.tools.length)}`,
+    `Ferramentas indisponíveis ou em manutenção: ${formatNumber(snapshot.unavailableTools.length)}`
   ];
-  snapshot.materialsByCategory.forEach(([category, total]) => {
+  snapshot.toolsByCategory.forEach(([category, total]) => {
     lines.push(`Categoria ${category}: ${formatNumber(total)} item(ns)`);
   });
-  snapshot.materials
+  snapshot.tools
     .slice()
     .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')))
     .slice(0, 5)
     .forEach((item) => {
-      lines.push(`Ferramenta | ${item.categoria} | ${item.material} | ${formatNumber(item.quantidade)} | ${item.status || '-'}`);
+      lines.push(`Ferramenta | ${item.categoria} | ${item.ferramenta} | ${formatNumber(item.quantidade)} | ${item.status || '-'}`);
     });
   return lines;
 }
@@ -848,9 +848,9 @@ function buildReportAnswer(message, snapshot) {
     prose.push(buildConsumptionsReport(filteredSnapshot));
     sections.push({ title: 'Consumos', lines: buildConsumptionsReportLines(filteredSnapshot) });
   }
-  if (includesAny(normalized, ['material', 'materiais'])) {
-    prose.push(buildMaterialsReport(filteredSnapshot));
-    sections.push({ title: 'Materiais', lines: buildMaterialsReportLines(filteredSnapshot) });
+  if (includesAny(normalized, ['ferramenta', 'ferramentas'])) {
+    prose.push(buildToolsReport(filteredSnapshot));
+    sections.push({ title: 'Ferramentas', lines: buildToolsReportLines(filteredSnapshot) });
   }
   if (includesAny(normalized, ['financeiro', 'gasto', 'gastos', 'receita', 'saldo', 'lucro'])) {
     prose.push(buildFinancialReport(filteredSnapshot));
@@ -900,7 +900,7 @@ function buildAssistantAnswer(message, snapshot) {
     if (topic === 'purchases') topicAnswers.push(buildPurchasesAnswer(snapshot));
     if (topic === 'sales') topicAnswers.push(buildSalesAnswer(snapshot));
     if (topic === 'consumptions') topicAnswers.push(buildConsumptionsAnswer(snapshot));
-    if (topic === 'materials') topicAnswers.push(buildMaterialsAnswer(snapshot));
+    if (topic === 'tools') topicAnswers.push(buildToolsAnswer(snapshot));
     if (topic === 'areas') topicAnswers.push(buildAreasAnswer(snapshot));
     if (topic === 'financial') topicAnswers.push(buildFinancialAnswer(snapshot));
     if (topic === 'charts') topicAnswers.push(buildChartsAnswer(snapshot));

@@ -21,7 +21,7 @@ const SQL_COLLECTION_TABLES = {
   consumptions: { table: 'consumos', idColumn: 'id' },
   sales: { table: 'vendas', idColumn: 'id_venda' },
   supplies: { table: 'produtos', idColumn: 'id_produto' },
-  materials: { table: 'materiais', idColumn: 'id_material' },
+  tools: { table: 'ferramentas', idColumn: 'id_ferramenta' },
   actions: { table: 'acoes', idColumn: 'id_acao' },
   dailyUnitActivities: { table: 'cs_daily_unit_activities', idColumn: 'id' },
   customUnits: { table: 'cadastrar_areas_produtivas', idColumn: 'id' },
@@ -124,8 +124,8 @@ const SQL_COLLECTION_SCHEMAS = {
     updatedBy: { column: 'updated_by', type: 'VARCHAR(190)' },
     createdBy: { column: 'created_by', type: 'VARCHAR(190)' }
   },
-  materials: {
-    material: { column: 'material', type: 'VARCHAR(160)' },
+  tools: {
+    ferramenta: { column: 'ferramenta', type: 'VARCHAR(160)' },
     categoria: { column: 'categoria', type: 'VARCHAR(120)' },
     quantidade: { column: 'quantidade', type: 'DOUBLE', kind: 'number' },
     status: { column: 'status_name', type: 'VARCHAR(80)' },

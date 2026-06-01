@@ -6,13 +6,13 @@ import {
   requireString
 } from '../lib/validators.js';
 
-export const MATERIAL_STATUS = [
+export const FERRAMENTA_STATUS = [
   'Disponivel',
   'Em manutencao',
   'Indisponivel'
 ];
 
-function normalizeMaterialStatus(value) {
+function normalizeFerramentaStatus(value) {
   const normalized = requireString(value, 'status');
 
   const simplified = normalized
@@ -21,25 +21,25 @@ function normalizeMaterialStatus(value) {
     .toLowerCase();
 
   if (simplified === 'disponivel') {
-    return MATERIAL_STATUS[0];
+    return FERRAMENTA_STATUS[0];
   }
 
   if (simplified === 'em manutencao') {
-    return MATERIAL_STATUS[1];
+    return FERRAMENTA_STATUS[1];
   }
 
   if (simplified === 'quebrado' || simplified === 'indisponivel') {
-    return MATERIAL_STATUS[2];
+    return FERRAMENTA_STATUS[2];
   }
 
-  throw new AppError(400, 'Status de material invalido.');
+  throw new AppError(400, 'Status de ferramenta invalido.');
 }
 
-function normalizeMaterial(body, user, current = {}) {
+function normalizeFerramenta(body, user, current = {}) {
   return {
-    material: requireString(
-      body?.material ?? current.material,
-      'material'
+    ferramenta: requireString(
+      body?.ferramenta ?? current.ferramenta,
+      'ferramenta'
     ),
 
     categoria: requireString(
@@ -53,7 +53,7 @@ function normalizeMaterial(body, user, current = {}) {
       { min: 1 }
     ),
 
-    status: normalizeMaterialStatus(
+    status: normalizeFerramentaStatus(
       body?.status ?? current.status
     ),
 
@@ -81,13 +81,13 @@ function normalizeMaterial(body, user, current = {}) {
 }
 
 export default createCollectionRouter({
-  collection: 'materials',
+  collection: 'tools',
 
   validateCreate: (body, user) =>
-    normalizeMaterial(body, user),
+    normalizeFerramenta(body, user),
 
   validateUpdate: (body, user, current) =>
-    normalizeMaterial(body, user, current),
+    normalizeFerramenta(body, user, current),
 
   allowDelete: true
 });

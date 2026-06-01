@@ -4,7 +4,7 @@
     {
       "title": "Estoque critico: Racao para peixe",
       "message": "Racao para peixe esta com 1 unidade(s) em estoque. Minimo recomendado: 1.",
-      "time": "15:03",
+      "time": "09:11",
       "read": false,
       "id": 2
     },
@@ -29,13 +29,13 @@
       "createdAt": "2026-05-16",
       "unitPrice": 10,
       "notes": "",
-      "updatedAt": "2026-05-29T15:03:59.157Z",
+      "updatedAt": "2026-06-01T09:11:50.748Z",
       "updatedBy": "consumos@camposync.app",
       "createdBy": "estoque@camposync.app",
       "id": 1
     }
   ],
-  "materials": [],
+  "tools": [],
   "actions": [],
   "dailyUnitActivities": [],
   "customUnits": [
@@ -217,7 +217,7 @@
     "consumptions": 1,
     "sales": 1,
     "supplies": 2,
-    "materials": 1,
+    "tools": 1,
     "actions": 1,
     "dailyUnitActivities": 1,
     "customUnits": 1,

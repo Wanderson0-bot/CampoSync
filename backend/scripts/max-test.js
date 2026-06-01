@@ -284,21 +284,21 @@ async function testCollections(connection, token) {
     token
   });
 
-  const material = await request('POST', '/api/materials', {
+  const ferramenta = await request('POST', '/api/tools', {
     expectedStatus: 201,
     token,
     body: {
-      material: `Ferramenta ${uniqueTag}`,
+      ferramenta: `Ferramenta ${uniqueTag}`,
       categoria: 'equipamento',
       quantidade: 3,
       status: 'Disponivel',
       dominio: 'avicultura',
       ultima_inspecao: '2026-05-15',
-      observacoes: 'material de teste'
+      observacoes: 'ferramenta de teste'
     }
   });
-  createdRecords.push({ table: 'materiais', idColumn: 'id_material', id: material.data.id });
-  await expectSqlRow(connection, 'materiais', 'id_material', material.data.id, { material: `Ferramenta ${uniqueTag}` });
+  createdRecords.push({ table: 'ferramentas', idColumn: 'id_ferramenta', id: ferramenta.data.id });
+  await expectSqlRow(connection, 'ferramentas', 'id_ferramenta', ferramenta.data.id, { ferramenta: `Ferramenta ${uniqueTag}` });
 
   const unit = await request('POST', '/api/units/custom', {
     expectedStatus: 201,
