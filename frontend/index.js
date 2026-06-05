@@ -1165,6 +1165,65 @@ function toArray(payload) {
   return [];
 }
 
+function formatNotificationTime(notification = {}) {
+  const rawDate = notification.occurredAt
+    || notification.createdAt
+    || notification.updatedAt
+    || notification.time
+    || notification.date
+    || "";
+
+  if (!rawDate) return nowTimeLabel();
+
+  const parsedDate = new Date(rawDate);
+  if (!Number.isNaN(parsedDate.getTime())) {
+    return parsedDate.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  return String(rawDate);
+}
+
+function normalizeNotificationRead(value) {
+  if (typeof value === "string") {
+    return ["true", "1", "sim", "yes"].includes(value.toLowerCase());
+  }
+
+  return Boolean(value);
+}
+
+function normalizeNotification(notification = {}) {
+  const title = String(notification.title || notification.titulo || "Alerta").trim();
+  const message = String(notification.message || notification.mensagem || notification.details || "Confira este alerta.").trim();
+  const occurredAt = notification.occurredAt || notification.createdAt || notification.updatedAt || "";
+  const stableFallbackId = `local-${slugify(`${title}-${message}-${occurredAt || notification.time || ""}`)}`;
+  const normalized = {
+    ...notification,
+    id: notification.id || notification._id || stableFallbackId,
+    title,
+    message,
+    read: normalizeNotificationRead(notification.read),
+    occurredAt
+  };
+
+  normalized.time = formatNotificationTime(normalized);
+  return normalized;
+}
+
+function normalizeNotifications(notifications = []) {
+  return toArray(notifications)
+    .map(normalizeNotification)
+    .sort((a, b) => String(b.occurredAt || b.time || "").localeCompare(String(a.occurredAt || a.time || "")));
+}
+
+function getNotificationSignature(notification = {}) {
+  return String(notification.id || `${notification.title}|${notification.message}|${notification.occurredAt || notification.time}`);
+}
+
 function toEntity(payload) {
   if (payload && typeof payload === "object" && payload.data && typeof payload.data === "object") {
     return payload.data;
@@ -1403,10 +1462,10 @@ function createAppServices() {
     notifications: {
       async list() {
         try {
-          return cacheList(STORAGE_KEYS.notifications, toArray(await apiRequest("/notifications")));
+          return cacheList(STORAGE_KEYS.notifications, normalizeNotifications(await apiRequest("/notifications")));
         } catch (error) {
           reportClientIssue("Failed to load notifications.", error, "error");
-          return cacheList(STORAGE_KEYS.notifications, readLocalList(STORAGE_KEYS.notifications));
+          return cacheList(STORAGE_KEYS.notifications, normalizeNotifications(readLocalList(STORAGE_KEYS.notifications)));
         }
       },
       async markRead(notificationId) {
@@ -1432,7 +1491,7 @@ function createAppServices() {
       },
       prependLocal(notification) {
         const notifications = APP_CACHE.notifications.length ? APP_CACHE.notifications : readLocalList(STORAGE_KEYS.notifications);
-        const nextList = [notification, ...notifications];
+        const nextList = normalizeNotifications([normalizeNotification(notification), ...notifications]);
         APP_CACHE.notifications = nextList;
         writeStorage(STORAGE_KEYS.notifications, nextList);
         return nextList;
@@ -1460,6 +1519,19 @@ function createAppServices() {
         } catch (error) {
           reportClientIssue("Failed to create purchase in backend. Saving locally.", error);
           return createLocalEntity(STORAGE_KEYS.purchases, purchase);
+        }
+      },
+      async update(purchaseId, purchase) {
+        try {
+          return cacheReplace(
+            STORAGE_KEYS.purchases,
+            purchaseId,
+            toEntity(await apiRequest(`/purchases/${purchaseId}`, { method: "PUT", body: purchase })),
+            readLocalList(STORAGE_KEYS.purchases)
+          );
+        } catch (error) {
+          reportClientIssue("Failed to update purchase in backend. Saving locally.", error);
+          return updateLocalEntity(STORAGE_KEYS.purchases, purchaseId, purchase);
         }
       },
       async remove(purchaseId) {
@@ -5057,6 +5129,17 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     function allowNotificationAudio() {
       notificationAudioAllowed = true;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass || notificationAudioContext) return;
+
+      try {
+        notificationAudioContext = new AudioContextClass();
+        if (notificationAudioContext.state === "suspended") {
+          notificationAudioContext.resume().catch(() => {});
+        }
+      } catch (error) {
+        reportClientIssue("Não foi possível liberar o áudio de notificações.", error, "warn");
+      }
     }
 
     async function playNotificationSound() {
@@ -5173,9 +5256,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     async function refreshNotifications() {
       if (!shouldLoadNotifications) return;
-      const nextNotifications = await services.notifications.list();
+      const nextNotifications = normalizeNotifications(await services.notifications.list());
       const nextUnreadIds = new Set(
-        nextNotifications.filter((notification) => !notification.read).map((notification) => String(notification.id))
+        nextNotifications.filter((notification) => !notification.read).map(getNotificationSignature)
       );
       const hasNewUnreadNotification = [...nextUnreadIds].some((id) => !knownUnreadNotificationIds.has(id));
       notifications = nextNotifications;
@@ -5192,9 +5275,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     async function loadInitialInterfaceData() {
       if (shouldLoadNotifications) {
-        notifications = await services.notifications.list();
+        notifications = normalizeNotifications(await services.notifications.list());
         knownUnreadNotificationIds = new Set(
-          notifications.filter((notification) => !notification.read).map((notification) => String(notification.id))
+          notifications.filter((notification) => !notification.read).map(getNotificationSignature)
         );
         renderNotifications();
       }
@@ -5222,6 +5305,9 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
       notifications = services.notifications.prependLocal(notification);
       renderNotifications();
+      playNotificationSound().catch((error) => {
+        reportClientIssue("Não foi possível tocar o som da notificação.", error);
+      });
     }
 
     function togglePanel(forceOpen) {
@@ -6363,6 +6449,8 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         .map(normalizePurchase);
 
     let chartInstance = null;
+    let editingPurchaseId = null;
+    const submitButton = formCompra.querySelector("[type='submit']");
 
     if (
       dataCompraInput &&
@@ -6442,6 +6530,27 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
       retornoCompra.dataset.state =
         type;
+    }
+
+    function setEditingPurchase(purchase = null) {
+      editingPurchaseId = purchase?.id || null;
+
+      if (submitButton) {
+        submitButton.textContent = editingPurchaseId ? "Salvar alterações" : "Salvar compra";
+      }
+
+      if (!purchase) {
+        return;
+      }
+
+      formCompra.elements.item.value = purchase.item || "";
+      formCompra.elements.category.value = resolveUnitKey(purchase.category) || purchase.category || "";
+      formCompra.elements.date.value = purchase.date || "";
+      formCompra.elements.quantity.value = purchase.quantity || "";
+      formCompra.elements.unitPrice.value = purchase.unitPrice || "";
+      formCompra.elements.notes.value = purchase.notes || "";
+      setFeedback("Edite os dados da compra e salve as alterações.", "info");
+      formCompra.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function getFilteredPurchases() {
@@ -6617,6 +6726,13 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
                 ${purchase.stock}
               </td>
 
+              <td>
+                <div class="acoes-tabela">
+                  <button type="button" class="btn-fantasma btn-acao-tabela" data-edit-purchase-id="${escapeHtml(purchase.id)}">Editar</button>
+                  <button type="button" class="btn-acao-tabela btn-excluir" data-delete-purchase-id="${escapeHtml(purchase.id)}">Excluir</button>
+                </div>
+              </td>
+
             </tr>
           `;
           })
@@ -6781,6 +6897,32 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       }
 
       try {
+        if (editingPurchaseId) {
+          const updatedPurchase = normalizePurchase(await services.purchases.update(editingPurchaseId, purchase));
+          purchases = purchases.map((item) => (
+            String(item.id) === String(editingPurchaseId) ? updatedPurchase : item
+          ));
+          await registerAuditLog({
+            type: "Compras",
+            title: "Compra atualizada",
+            details: `${purchase.item} atualizado em ${getUnitDisplayLabel(purchase.category)} com total de ${formatCurrency(purchase.quantity * purchase.unitPrice)}.`,
+            area: getUnitDisplayLabel(purchase.category),
+            status: "Concluído",
+            entityType: "purchase",
+            entityId: updatedPurchase?.id,
+            metadata: purchase
+          });
+
+          formCompra.reset();
+          if (dataCompraInput) {
+            dataCompraInput.value = new Date().toISOString().slice(0, 10);
+          }
+          setEditingPurchase(null);
+          renderPurchases();
+          window.setTimeout(() => setFeedback("Compra atualizada com sucesso.", "success"), 0);
+          return;
+        }
+
         const createdPurchase = normalizePurchase(await services.purchases.create(purchase));
         purchases = [createdPurchase, ...purchases];
         await registerAuditLog({
@@ -6799,7 +6941,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
           dataCompraInput.value = new Date().toISOString().slice(0, 10);
         }
         renderPurchases();
-        setFeedback("Compra registrada com sucesso.", "success");
+        window.setTimeout(() => setFeedback("Compra registrada com sucesso.", "success"), 0);
       } catch (error) {
         setFeedback(error?.message || "Não foi possível registrar a compra agora.", "error");
       }
@@ -6807,11 +6949,57 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
 
     formCompra.addEventListener("reset", () => {
       window.setTimeout(() => {
+        setEditingPurchase(null);
         setFeedback("", "");
         if (dataCompraInput) {
           dataCompraInput.value = new Date().toISOString().slice(0, 10);
         }
       }, 0);
+    });
+
+    corpoTabelaCompra.addEventListener("click", async (event) => {
+      const editButton = event.target.closest("[data-edit-purchase-id]");
+      if (editButton) {
+        const purchase = purchases.find((item) => String(item.id) === String(editButton.dataset.editPurchaseId));
+        if (purchase) {
+          setEditingPurchase(purchase);
+        }
+        return;
+      }
+
+      const deleteButton = event.target.closest("[data-delete-purchase-id]");
+      if (!deleteButton) {
+        return;
+      }
+
+      const purchaseId = deleteButton.dataset.deletePurchaseId;
+      const purchase = purchases.find((item) => String(item.id) === String(purchaseId));
+      if (!purchase || !window.confirm(`Excluir a compra "${purchase.item}"?`)) {
+        return;
+      }
+
+      try {
+        await services.purchases.remove(purchaseId);
+        purchases = purchases.filter((item) => String(item.id) !== String(purchaseId));
+        if (String(editingPurchaseId) === String(purchaseId)) {
+          formCompra.reset();
+          setEditingPurchase(null);
+        }
+        await registerAuditLog({
+          type: "Compras",
+          title: "Compra excluída",
+          details: `${purchase.item} foi removido do histórico de compras.`,
+          area: getUnitDisplayLabel(purchase.category),
+          status: "Concluído",
+          entityType: "purchase",
+          entityId: purchaseId,
+          metadata: purchase
+        });
+        renderPurchases();
+        setFeedback("Compra excluída com sucesso.", "success");
+      } catch (error) {
+        setFeedback(error?.message || "Não foi possível excluir a compra.", "error");
+      }
     });
 
     buscaCompra?.addEventListener("input", renderTable);

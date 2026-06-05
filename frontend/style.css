@@ -253,6 +253,7 @@ PÁGINAS: LOGIN E CADASTRO
 .texto-form h2 {
     font-size: clamp(2rem, 4vw, 2.8rem);
     line-height: 1;
+    color: var(--text);
 }
 
 .texto-form p:last-child {
@@ -2214,6 +2215,63 @@ body.modo-escuro {
     --dark-text-muted: #c3d2c6;
 }
 
+body.modo-escuro.corpo-login {
+    background:
+        radial-gradient(circle at top left, rgba(93, 142, 80, 0.24), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(217, 162, 95, 0.12), transparent 28%),
+        linear-gradient(135deg, #121a16 0%, #18231d 52%, #202917 100%);
+}
+
+body.modo-escuro .painel-login {
+    background: var(--dark-panel);
+    border-color: var(--dark-line);
+}
+
+body.modo-escuro .painel-form {
+    background: linear-gradient(180deg, rgba(36, 49, 41, 0.98), rgba(27, 36, 31, 0.98));
+}
+
+body.modo-escuro .texto-form h2,
+body.modo-escuro .campo label,
+body.modo-escuro .rodape-form {
+    color: #edf4ee;
+}
+
+body.modo-escuro .texto-form p:last-child,
+body.modo-escuro .caixa-marcacao,
+body.modo-escuro .divisor {
+    color: var(--dark-text-muted);
+}
+
+body.modo-escuro .form-login input[type="email"],
+body.modo-escuro .form-login input[type="text"],
+body.modo-escuro .form-login input[type="password"] {
+    background: var(--dark-panel-strong);
+    color: #edf4ee;
+    border-color: var(--dark-line);
+}
+
+body.modo-escuro .form-login input::placeholder {
+    color: rgba(237, 244, 238, 0.58);
+}
+
+body.modo-escuro .divisor span {
+    background: var(--dark-panel);
+}
+
+body.modo-escuro .btn-limpar,
+body.modo-escuro .btn-fantasma {
+    background: rgba(216, 236, 220, 0.14);
+    color: #edf4ee;
+    border: 1px solid var(--dark-line);
+    box-shadow: none;
+}
+
+body.modo-escuro .btn-limpar:hover,
+body.modo-escuro .btn-fantasma:hover {
+    background: rgba(216, 236, 220, 0.2);
+}
+
 body.modo-escuro .menu-lateral {
     background: #173c24;
 }
@@ -2314,6 +2372,47 @@ body.modo-escuro .mensagem-form-und {
 
 body.modo-escuro .mensagem-form-und[data-state="error"] {
     color: #ffb0b0;
+}
+
+body.modo-escuro.pagina-acessibilidade {
+    --acessibilidade-fundo: #18211c;
+    --acessibilidade-card: #243129;
+    --acessibilidade-borda: rgba(216, 236, 220, 0.2);
+    --acessibilidade-texto: #edf4ee;
+    --acessibilidade-texto-sec: #c3d2c6;
+    background: var(--acessibilidade-fundo);
+    color: var(--acessibilidade-texto);
+}
+
+body.modo-escuro.pagina-acessibilidade .acessibilidade-hero-card,
+body.modo-escuro.pagina-acessibilidade .acessibilidade-card,
+body.modo-escuro.pagina-acessibilidade .acessibilidade-preview-info {
+    background: var(--acessibilidade-card);
+    color: var(--acessibilidade-texto);
+    border-color: var(--acessibilidade-borda);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.26);
+}
+
+body.modo-escuro.pagina-acessibilidade .acessibilidade-opcoes button {
+    background: rgba(216, 236, 220, 0.12);
+    color: var(--acessibilidade-texto);
+    border-color: var(--acessibilidade-borda);
+}
+
+body.modo-escuro.pagina-acessibilidade .acessibilidade-opcoes button:hover,
+body.modo-escuro.pagina-acessibilidade .acessibilidade-opcoes .acessibilidade-opcao-ativa {
+    background: rgba(139, 195, 74, 0.18);
+    color: #edf4ee;
+    border-color: rgba(139, 195, 74, 0.55);
+}
+
+body.modo-escuro.pagina-acessibilidade .acessibilidade-preview {
+    background: var(--dark-panel);
+}
+
+body.modo-escuro.pagina-acessibilidade .acessibilidade-link-item,
+body.modo-escuro.pagina-acessibilidade .acessibilidade-hero-esquerda p {
+    color: var(--acessibilidade-texto-sec);
 }
 
 .cards-info {
@@ -2638,6 +2737,17 @@ body.modo-escuro .mensagem-form-und[data-state="error"] {
     padding: 10px 14px;
     background: rgba(182, 64, 64, 0.12);
     color: #9b2f2f;
+}
+
+.acoes-tabela {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.acoes-tabela .btn-fantasma {
+    background: rgba(47, 107, 59, 0.14);
+    color: #2a6137;
 }
 
 .btn-fantasma:hover,
