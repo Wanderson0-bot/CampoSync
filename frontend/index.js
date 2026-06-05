@@ -5126,6 +5126,7 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     let isSavingUnit = false;
     const shouldLoadNotifications = Boolean(btnSino || painelAlertas || listaNotif || badge);
     const shouldLoadCustomUnits = Boolean(cardsContainer || addUnitButton || formUnidade);
+    let notificationControlsReady = false;
 
     function allowNotificationAudio() {
       notificationAudioAllowed = true;
@@ -5208,13 +5209,13 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
     }
 
     function renderNotifications() {
+      updateBadge();
       if (!listaNotif) return;
       listaNotif.innerHTML = "";
       const unreadNotifications = notifications.filter((notification) => !notification.read);
 
       if (!unreadNotifications.length) {
         listaNotif.innerHTML = '<p class="notif-vazia">Nenhum alerta no momento.</p>';
-        updateBadge();
         return;
       }
 
@@ -5251,7 +5252,6 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         listaNotif.appendChild(item);
       });
 
-      updateBadge();
     }
 
     async function refreshNotifications() {
@@ -5316,6 +5316,44 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       painelAlertas.classList.toggle("esta-aberto", shouldOpen);
       btnSino.setAttribute("aria-expanded", String(shouldOpen));
     }
+
+    async function safeRefreshNotifications() {
+      try {
+        await refreshNotifications();
+      } catch (error) {
+        reportClientIssue("Falha ao atualizar notificações.", error, "warn");
+      }
+    }
+
+    function wireNotificationControls() {
+      if (notificationControlsReady) return;
+      notificationControlsReady = true;
+
+      btnSino?.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        togglePanel();
+        safeRefreshNotifications();
+      });
+      btnMarcarTudoLido?.addEventListener("click", markAllAsRead);
+      window.addEventListener("pointerdown", allowNotificationAudio, { once: true });
+      window.addEventListener("keydown", allowNotificationAudio, { once: true });
+      window.addEventListener("camposync:notifications-changed", safeRefreshNotifications);
+
+      if (shouldLoadNotifications) {
+        startRealtimeRefresh(safeRefreshNotifications, "notificacoes");
+      }
+
+      if (painelAlertas && btnSino) {
+        document.addEventListener("click", (event) => {
+          if (!painelAlertas.contains(event.target) && !btnSino.contains(event.target)) {
+            togglePanel(false);
+          }
+        });
+      }
+    }
+
+    wireNotificationControls();
 
     async function markAllAsRead() {
       await services.notifications.markAllRead();
@@ -5844,13 +5882,8 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
       });
     }
 
-    btnSino?.addEventListener("click", () => togglePanel());
-    btnMarcarTudoLido?.addEventListener("click", markAllAsRead);
+    wireNotificationControls();
     btnAlternarTema?.addEventListener("click", toggleTheme);
-    window.addEventListener("pointerdown", allowNotificationAudio, { once: true });
-    window.addEventListener("keydown", allowNotificationAudio, { once: true });
-    window.addEventListener("camposync:notifications-changed", refreshNotifications);
-    startRealtimeRefresh(refreshNotifications, "notificacoes");
     addUnitButton?.addEventListener("click", () => openUnitModal());
     formUnidade?.addEventListener("submit", addUnit);
     btnFecharModalUnidadeButton?.addEventListener("click", closeUnitModal);
@@ -5873,15 +5906,6 @@ async function setupBasicAnimalLifecycleManagement(unitKey, context = {}) {
         await removeUnit(removeButton);
       }
     });
-
-    if (painelAlertas && btnSino) {
-      document.addEventListener("click", (event) => {
-        if (!painelAlertas.contains(event.target) && !btnSino.contains(event.target)) {
-          togglePanel(false);
-        }
-      });
-    }
-
 
     document.addEventListener("click", (event) => {
       if (!event.target.closest(".menu-card-area")) {

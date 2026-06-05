@@ -1583,6 +1583,10 @@ COMPONENTE COMPARTILHADO: NOTIFICAÇÕES
     box-shadow: 0 8px 18px rgba(185, 28, 28, 0.28);
 }
 
+.badge[hidden] {
+    display: none;
+}
+
 .painel-alertas {
     position: absolute;
     top: 40px;
